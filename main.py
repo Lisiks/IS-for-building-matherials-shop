@@ -1,5 +1,14 @@
 import customtkinter as ctk
+
 from main_menu_form import MainMenuForm
+from nomenclature_form import NomenclatureForm
+from sales_form import SalesForm
+from purchases_form import PurchasesForm
+from write_offs_form import WriteOffsForm
+from suppliers_form import SuppliersForm
+from clients_form import ClientsForm
+from reports_form import ReportsForm
+
 from global_const import *
 
 
@@ -14,16 +23,23 @@ class Application(ctk.CTk):
         self.__current_form: ctk.CTkFrame = None
 
         self.__navigation_panel = self.__create_navigation_panel()
-        self.main_menu_form = MainMenuForm(self)
+        self.__main_menu_form = MainMenuForm(self)
+        self.__nomenclature_form = NomenclatureForm(self)
+        self.__sales_form = SalesForm(self)
+        self.__purchases_form = PurchasesForm(self)
+        self.__write_offs_form = WriteOffsForm(self)
+        self.__suppliers_form = SuppliersForm(self)
+        self.__clients_form = ClientsForm(self)
+        self.__reports_form = ReportsForm(self)
 
         self.__navigation_panel.grid(row=0, column=0)
-        self.change_form(self.main_menu_form)
+        self.__change_form(self.__main_menu_form)
 
-    def change_form(self, new_form: ctk.CTkFrame):
+    def __change_form(self, new_form: ctk.CTkFrame):
         if self.__current_form is not None:
-            self.__current_form.forget()
+            self.__current_form.grid_forget()
         self.__current_form = new_form
-        new_form.grid(row=0, column=1, columnspan=3, padx=10, pady=10)
+        self.__current_form.grid(row=0, column=1, columnspan=3, padx=10, pady=10)
 
     def run(self):
         self.mainloop()
@@ -43,6 +59,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__main_menu_form)
         )
 
         self.__nomenclature_button = ctk.CTkButton(
@@ -52,6 +69,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__nomenclature_form)
         )
 
         self.__sales_button = ctk.CTkButton(
@@ -61,6 +79,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__sales_form)
         )
 
         self.__purchases_button = ctk.CTkButton(
@@ -70,6 +89,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__purchases_form)
         )
 
         self.__write_offs_button = ctk.CTkButton(
@@ -79,6 +99,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__write_offs_form)
         )
 
         self.__suppliers_button = ctk.CTkButton(
@@ -88,6 +109,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__suppliers_form)
         )
 
         self.__clients_button = ctk.CTkButton(
@@ -97,6 +119,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__clients_form)
         )
 
         self.__reports_button = ctk.CTkButton(
@@ -106,6 +129,7 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
+            command=lambda: self.__change_form(self.__reports_form)
         )
 
         self.__main_menu_button.grid(row=0, column=0)
