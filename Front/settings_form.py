@@ -1,5 +1,9 @@
 import customtkinter as ctk
+import Back.backend_for_settings as back
+import mysql.connector.errors
 from global_const import *
+from dialog_window import InformationDialog, ModalDialog
+
 
 
 class SettingsForm(ctk.CTkFrame):
@@ -58,6 +62,7 @@ class SettingsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=widgets_w,
             height=widgets_h,
+            command=self.__saving_organization_data
         )
 
         ctk.CTkLabel(
@@ -126,7 +131,8 @@ class SettingsForm(ctk.CTkFrame):
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+
         )
 
         self.__add_type_button = ctk.CTkButton(
@@ -135,6 +141,7 @@ class SettingsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=widgets_w,
             height=widgets_h,
+            command=self.__add_product_type
         )
 
         self.__del_type_button = ctk.CTkButton(
@@ -143,6 +150,7 @@ class SettingsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=widgets_w,
             height=widgets_h,
+            command=self.__del_product_type
         )
 
         ctk.CTkLabel(
@@ -170,6 +178,7 @@ class SettingsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=widgets_w,
             height=widgets_h,
+            command=self.__add_product_unit
         )
 
         self.__del_unit_button = ctk.CTkButton(
@@ -178,6 +187,7 @@ class SettingsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=widgets_w,
             height=widgets_h,
+            command=self.__del_product_unit
         )
 
         ctk.CTkLabel(
@@ -191,3 +201,160 @@ class SettingsForm(ctk.CTkFrame):
         self.__product_unit_combobox.grid(row=2, column=2, sticky="w", padx=x_padding, pady=y_padding)
         self.__add_unit_button.grid(row=3, column=2, sticky="w", padx=x_padding, pady=y_padding)
         self.__del_unit_button.grid(row=4, column=2, sticky="w", padx=x_padding, pady=y_padding)
+
+        self.bind("<Map>", self.__on_form_show_actions)
+
+    def __on_form_show_actions(self, event):
+        self.__organization_name_entry.delete(0, ctk.END)
+        self.__organization_inn_entry.delete(0, ctk.END)
+        self.__organization_ogrn_entry.delete(0, ctk.END)
+        self.__organization_telephone_entry.delete(0, ctk.END)
+        self.__organization_address_entry.delete(0, ctk.END)
+
+        try:
+            org_data = back.get_organization_data()
+            self.__organization_name_entry.insert(0, org_data["organization_name"])
+            self.__organization_inn_entry.insert(0, org_data["organization_inn"])
+            self.__organization_ogrn_entry.insert(0, org_data["organization_ogrn"])
+            self.__organization_telephone_entry.insert(0, org_data["organization_telephone"])
+            self.__organization_address_entry.insert(0, org_data["organization_address"])
+        except FileNotFoundError:
+            InformationDialog(
+                self.master,
+                "Ошибка чтения файла!",
+                "Файл 'organization_data.json' был поврежден\n перемещен или утерян!"
+            )
+
+        self.__product_types_combobox.set("")
+        self.__product_unit_combobox.set("")
+        try:
+            types_list = back.get_product_types()
+            self.__product_types_combobox.configure(values=types_list)
+            units_list = back.get_product_units()
+            self.__product_unit_combobox.configure(values=units_list)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __add_product_type(self):
+        product_type = self.__product_types_combobox.get()
+        try:
+            back.add_product_type(product_type)
+            self.__product_types_combobox.set("")
+
+            values_list = list(self.__product_types_combobox.cget("values"))
+            values_list.append(product_type)
+            self.__product_types_combobox.configure(values=values_list)
+
+        except AttributeError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                "Длинна введенного типа должна быть не более 30\nи не менее 3 символов!")
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                "Данный тип уже присутствует в базе данных!")
+
+
+    def __add_product_unit(self):
+        product_unit = self.__product_unit_combobox.get()
+        try:
+            back.add_product_unit(product_unit)
+            self.__product_unit_combobox.set("")
+            values_list = list(self.__product_unit_combobox.cget("values"))
+            values_list.append(product_unit)
+            self.__product_unit_combobox.configure(values=values_list)
+        except AttributeError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                "Длинна введенной единицы измерения должна быть не более 30\nи не менее 1 символа!")
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                "Данная единица измерения уже присутствует в базе данных!")
+
+    def __del_product_type(self):
+        product_type = self.__product_types_combobox.get()
+        try:
+            dialog = ModalDialog(
+                self.master,
+                "Подтвердите действие.",
+                f"Вы действительно хотите удалить тип '{product_type}'?\nПри его удалении будут также удалены все записи о товарах\nс данным типом."
+            )
+            dialog.wait_window()
+
+            if dialog.modal_result:
+                back.del_product_type(product_type)
+                values_list = list(self.__product_types_combobox.cget("values"))
+                values_list.remove(product_type)
+                self.__product_types_combobox.configure(values=values_list)
+                self.__product_types_combobox.set("")
+
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except AttributeError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                f"Тип '{product_type}' отсутствует в базе данных!'!")
+
+    def __del_product_unit(self):
+        product_unit = self.__product_unit_combobox.get()
+        try:
+            dialog = ModalDialog(
+                self.master,
+                "Подтвердите действие.",
+                f"Вы действительно хотите единицу измерения '{product_unit}'?\nПри ее удалении будут также удалены все записи о товарах\nс данной единицей."
+            )
+            dialog.wait_window()
+
+            if dialog.modal_result:
+                back.del_product_unit(product_unit)
+                values_list = list(self.__product_unit_combobox.cget("values"))
+                values_list.remove(product_unit)
+                self.__product_unit_combobox.configure(values=values_list)
+                self.__product_unit_combobox.set("")
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except AttributeError:
+            InformationDialog(
+                self.master,
+                "Некорректный ввод!",
+                f"Единица измерения '{product_unit}' отсутствует в базе данных!'!")
+
+    def __saving_organization_data(self):
+        org_name = self.__organization_name_entry.get()
+        org_inn = self.__organization_inn_entry.get()
+        org_ogrn = self.__organization_ogrn_entry.get()
+        org_telephone = self.__organization_telephone_entry.get()
+        org_address = self.__organization_address_entry.get()
+        try:
+            back.set_organization_data(org_name, org_inn, org_ogrn, org_telephone, org_address)
+        except FileNotFoundError:
+            InformationDialog(
+                self.master,
+                "Ошибка чтения файла!",
+                "Файл 'organization_data.json' был поврежден\n перемещен или утерян!"
+            )
