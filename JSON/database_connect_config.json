@@ -1,0 +1,6 @@
+{
+  "host": "MySQL-8.0",
+  "database": "InformationalSystemDataBase",
+  "user": "root",
+  "password": ""
+}
