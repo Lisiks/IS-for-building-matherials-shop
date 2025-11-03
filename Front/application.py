@@ -10,7 +10,6 @@ from suppliers_form import SuppliersForm
 from clients_form import ClientsForm
 from reports_form import ReportsForm
 
-from Back.database_connector import connect_to_database, close_connection
 
 from global_const import *
 
@@ -23,10 +22,7 @@ class Application(ctk.CTk):
         self.after(0, lambda: self.state('zoomed'))
         self.width = self.winfo_screenwidth()
         self.height = self.winfo_screenheight()
-        self.minsize(self.width, self.height)
-        self.maxsize(self.width, self.height)
         self.title("Информационная система для строительного магазина")
-
 
         self.__current_form: ctk.CTkFrame = None
 
@@ -43,15 +39,6 @@ class Application(ctk.CTk):
         self.__navigation_panel.grid(row=0, column=0)
         self.change_form(self.__main_menu_form)
 
-        try:
-            connect_to_database()
-        except Exception as e:
-            pass
-            #showerror(
-            #    title="Ошибка подключения к базе данных",
-            #    message="Проверьте подключение к интернету или обратитесь к техническому спициалисту!"
-            #)
-        self.bind("<Destroy>", close_connection)
 
     def change_form(self, new_form: ctk.CTkFrame):
         if self.__current_form is not None:
