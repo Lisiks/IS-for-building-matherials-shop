@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import Back.backend_for_settings as back
 import mysql.connector.errors
+
 from global_const import *
 from dialog_window import InformationDialog, ModalDialog
 
@@ -25,35 +26,40 @@ class SettingsForm(ctk.CTkFrame):
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            placeholder_text="Название: "
         )
 
         self.__organization_inn_entry = ctk.CTkEntry(
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            placeholder_text="ИНН: 0000000000"
         )
 
         self.__organization_ogrn_entry = ctk.CTkEntry(
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            placeholder_text="ОГРН: 0000000000000"
         )
 
         self.__organization_telephone_entry = ctk.CTkEntry(
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            placeholder_text="Тел: 0-000-000-00-00"
         )
 
         self.__organization_address_entry = ctk.CTkEntry(
             master=self,
             width=widgets_w,
             height=widgets_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            placeholder_text="Адрес: "
         )
 
         self.__save_organization_data_button = ctk.CTkButton(
@@ -132,7 +138,6 @@ class SettingsForm(ctk.CTkFrame):
             width=widgets_w,
             height=widgets_h,
             font=("Arial", font_size),
-
         )
 
         self.__add_type_button = ctk.CTkButton(
@@ -248,7 +253,7 @@ class SettingsForm(ctk.CTkFrame):
             values_list.append(product_type)
             self.__product_types_combobox.configure(values=values_list)
 
-        except AttributeError:
+        except TypeError:
             InformationDialog(
                 self.master,
                 "Некорректный ввод!",
@@ -273,7 +278,7 @@ class SettingsForm(ctk.CTkFrame):
             values_list = list(self.__product_unit_combobox.cget("values"))
             values_list.append(product_unit)
             self.__product_unit_combobox.configure(values=values_list)
-        except AttributeError:
+        except TypeError:
             InformationDialog(
                 self.master,
                 "Некорректный ввод!",
@@ -311,7 +316,7 @@ class SettingsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except AttributeError:
+        except TypeError:
             InformationDialog(
                 self.master,
                 "Некорректный ввод!",
@@ -338,7 +343,7 @@ class SettingsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except AttributeError:
+        except TypeError:
             InformationDialog(
                 self.master,
                 "Некорректный ввод!",
@@ -358,3 +363,13 @@ class SettingsForm(ctk.CTkFrame):
                 "Ошибка чтения файла!",
                 "Файл 'organization_data.json' был поврежден\n перемещен или утерян!"
             )
+        except TypeError as current_error:
+            if current_error.args[0] == "Incorrect inn":
+                info = "Некорректный формат ИНН!"
+            elif current_error.args[0] == "Incorrect ogrn":
+                info = "Некорректный формат ОГРН!"
+            elif current_error.args[0] == "Incorrect telephone":
+                info = "Некорректный формат номера телефона"
+            else:
+                info = "Непредвиденная ошибка :("
+            InformationDialog(self.master, "Некорректный ввод!", info)
