@@ -6,7 +6,6 @@ from global_const import *
 from dialog_window import InformationDialog, ModalDialog
 
 
-
 class SettingsForm(ctk.CTkFrame):
     def __init__(self, master, window_w, window_h):
         super().__init__(master=master)
@@ -209,7 +208,7 @@ class SettingsForm(ctk.CTkFrame):
 
         self.bind("<Map>", self.__on_form_show_actions)
 
-    def __on_form_show_actions(self, event):
+    def __on_form_show_actions(self, _):
         self.__organization_name_entry.delete(0, ctk.END)
         self.__organization_inn_entry.delete(0, ctk.END)
         self.__organization_ogrn_entry.delete(0, ctk.END)
@@ -232,6 +231,8 @@ class SettingsForm(ctk.CTkFrame):
 
         self.__product_types_combobox.set("")
         self.__product_unit_combobox.set("")
+        self.__product_types_combobox.configure(values=[])
+        self.__product_types_combobox.configure(values=[])
         try:
             types_list = back.get_product_types()
             self.__product_types_combobox.configure(values=types_list)
@@ -268,7 +269,6 @@ class SettingsForm(ctk.CTkFrame):
                 self.master,
                 "Некорректный ввод!",
                 "Данный тип уже присутствует в базе данных!")
-
 
     def __add_product_unit(self):
         product_unit = self.__product_unit_combobox.get()
@@ -369,7 +369,7 @@ class SettingsForm(ctk.CTkFrame):
             elif current_error.args[0] == "Incorrect ogrn":
                 info = "Некорректный формат ОГРН!"
             elif current_error.args[0] == "Incorrect telephone":
-                info = "Некорректный формат номера телефона"
+                info = "Некорректный формат номера телефона!"
             else:
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
