@@ -7,7 +7,6 @@ from Back.backend_for_settings import get_product_types, get_product_units
 from global_const import *
 
 
-
 class NomenclatureForm(ctk.CTkFrame):
     def __init__(self, master, window_w, window_h):
         super().__init__(master)
@@ -248,7 +247,7 @@ class NomenclatureForm(ctk.CTkFrame):
             width=button_w,
             height=button_h,
             font=("Arial", font_size + 10),
-            command=self.__find_records
+            command=self.__find_products
         )
 
         ctk.CTkLabel(
@@ -476,9 +475,9 @@ class NomenclatureForm(ctk.CTkFrame):
                     info = "Непредвиденная ошибка :("
                 InformationDialog(self.master, "Некорректный ввод!", info)
 
-    def __find_records(self):
+    def __find_products(self):
         try:
-            finding_record = back.get_finding_record(self.__found_entry.get())
+            finding_record = back.get_finding_products(self.__found_entry.get())
             self.__updating_table_data(finding_record)
         except mysql.connector.errors.InterfaceError:
             InformationDialog(

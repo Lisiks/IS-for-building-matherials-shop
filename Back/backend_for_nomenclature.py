@@ -92,7 +92,7 @@ def del_product(article):
     connector.close()
 
 
-def get_finding_record(attribute) -> list:
+def get_finding_products(attribute) -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
@@ -121,9 +121,6 @@ def get_finding_record(attribute) -> list:
             selection_query,
             (float(attribute), float(attribute), liked_attribute, liked_attribute, liked_attribute)
         )
-    elif attribute == "":
-        selection_query = """SELECT * FROM Products;"""
-        cursor.execute(selection_query)
     else:
         selection_query = """SELECT * FROM Products 
         WHERE ProductName LIKE %s OR ProductTypes_ProductType LIKE %s OR MeasurmentUnits_MeasurmentUnitsName LIKE %s;"""
@@ -131,6 +128,4 @@ def get_finding_record(attribute) -> list:
 
     connector.close()
     return cursor.fetchall()
-
-
 
