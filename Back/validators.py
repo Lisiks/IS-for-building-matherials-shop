@@ -21,3 +21,15 @@ def telephone_validation(telephone_number) -> bool:
             (telephone_component_list[3].isdigit() and len(telephone_component_list[3]) == 2) and
             (telephone_component_list[4].isdigit() and len(telephone_component_list[4]) == 2)
     )
+
+
+def article_validation(article) -> bool:
+    return 1 <= len(article) <= 10 and article.isdigit()
+
+
+def float_validation(attribute) -> bool:
+    try:
+        float(attribute)
+    except ValueError:
+        return False
+    return True
