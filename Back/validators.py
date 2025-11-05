@@ -12,7 +12,6 @@ def email_validation(email) -> bool:
 
 def telephone_validation(telephone_number) -> bool:
     telephone_component_list = telephone_number.strip().split("-")
-    print(telephone_component_list)
     return (
             len(telephone_component_list) == 5 and
             (telephone_component_list[0].isdigit() and 1 <= len(telephone_component_list[0]) <= 3) and
