@@ -36,7 +36,7 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     cursor = connector.cursor()
 
     check_article_query = """SELECT count(*) FROM Products WHERE ProductArticle = %s;"""
-    checking_article_query = cursor.execute(check_article_query, (article,))
+    cursor.execute(check_article_query, (article,))
     if cursor.fetchall()[0][0] != 0:
         raise TypeError("Existing article")
 
@@ -71,7 +71,7 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
     cursor = connector.cursor()
 
     check_article_query = """SELECT count(*) FROM Products WHERE ProductArticle = %s;"""
-    checking_article_query = cursor.execute(check_article_query, (article,))
+    cursor.execute(check_article_query, (article,))
     if cursor.fetchall()[0][0] != 0 and old_article != article:
         raise TypeError("Existing article")
 
