@@ -4,7 +4,7 @@ import mysql.connector.errors
 from tksheet import Sheet
 from Front.dialog_window import InformationDialog, ModalDialog
 from Back.backend_for_settings import get_product_types, get_product_units
-from global_const import *
+from Front.global_const import *
 
 
 class NomenclatureForm(ctk.CTkFrame):
@@ -357,7 +357,8 @@ class NomenclatureForm(ctk.CTkFrame):
         prod_type = self.__type_combobox.get()
         prod_unit = self.__unit_combobox.get()
         try:
-            added_record = back.add_product(article, name, buy_price, sel_price, prod_type, prod_unit)
+            back.add_product(article, name, buy_price, sel_price, prod_type, prod_unit)
+            added_record = [article, name, buy_price, sel_price, prod_type, prod_unit]
             self.__nomenclature_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__nomenclature_table.deselect(row="all")
@@ -366,11 +367,6 @@ class NomenclatureForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except mysql.connector.errors.IntegrityError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Товар с данным артикулом уже присутствует\nв базе данных")
         except ValueError:
             InformationDialog(
                 self.master,
@@ -385,6 +381,8 @@ class NomenclatureForm(ctk.CTkFrame):
                 info = "Некорректная величина цены. Цена должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
             elif current_error.args[0] == "Type or unit is empy":
                 info = "Некорректная запись. Вы обязательно должны указать\nтип и единицу измерения товара!"
+            elif current_error.args[0] == "Existing article":
+                info = "Товар с данным артикулом уже присутствует\nв базе данных"
             else:
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
@@ -441,8 +439,8 @@ class NomenclatureForm(ctk.CTkFrame):
             prod_type = self.__type_combobox.get()
             prod_unit = self.__unit_combobox.get()
             try:
-                updated_record = back.update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit)
-                updated_record.append(count)
+                back.update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit)
+                updated_record = [article, name, buy_price, sel_price, prod_type, prod_unit, count]
                 self.__nomenclature_table.delete_row(rows=selected_row)
                 self.__nomenclature_table.insert_row(idx=selected_row, row=updated_record, redraw=True)
                 self.__nomenclature_table.deselect(row="all")
@@ -452,11 +450,6 @@ class NomenclatureForm(ctk.CTkFrame):
                     self.master,
                     "Ошибка подключения к БД!",
                     "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-            except mysql.connector.errors.IntegrityError:
-                InformationDialog(
-                    self.master,
-                    "Некорректный ввод!",
-                    "Товар с данным артикулом уже присутствует\nв базе данных")
             except ValueError:
                 InformationDialog(
                     self.master,
@@ -471,6 +464,8 @@ class NomenclatureForm(ctk.CTkFrame):
                     info = "Некорректная величина цены. Цена должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
                 elif current_error.args[0] == "Type or unit is empy":
                     info = "Некорректная запись. Вы обязательно должны указать\nтип и единицу измерения товара!"
+                elif current_error.args[0] == "Existing article":
+                    info = "Товар с данным артикулом уже присутствует\nв базе данных"
                 else:
                     info = "Непредвиденная ошибка :("
                 InformationDialog(self.master, "Некорректный ввод!", info)

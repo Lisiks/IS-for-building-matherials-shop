@@ -14,7 +14,7 @@ def get_nomenclature() -> list:
     return cursor.fetchall()
 
 
-def add_product(article, name, buy_price, sel_price, prod_type, prod_unit) -> list:
+def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     if not article_validation(article):
         raise TypeError("Incorrect article length")
 
@@ -34,6 +34,11 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit) -> li
 
     connector = get_connector()
     cursor = connector.cursor()
+
+    check_article_query = """SELECT count(*) FROM Products WHERE ProductArticle = %s;"""
+    checking_article_query = cursor.execute(check_article_query, (article,))
+    if cursor.fetchall()[0][0] != 0:
+        raise TypeError("Existing article")
 
     add_product_query = """INSERT INTO Products(ProductArticle, ProductName, BuyingPrice, SellingPrice, 
     ProductTypes_ProductType, MeasurmentUnits_MeasurmentUnitsName)
@@ -43,11 +48,8 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit) -> li
     connector.commit()
     connector.close()
 
-    added_record = [article, name, float_buy_price, float_sel_price, prod_type, prod_unit, 0]
-    return added_record
 
-
-def update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit) -> list:
+def update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit):
     if not article_validation(article):
         raise TypeError("Incorrect article length")
 
@@ -68,6 +70,11 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
     connector = get_connector()
     cursor = connector.cursor()
 
+    check_article_query = """SELECT count(*) FROM Products WHERE ProductArticle = %s;"""
+    checking_article_query = cursor.execute(check_article_query, (article,))
+    if cursor.fetchall()[0][0] != 0 and old_article != article:
+        raise TypeError("Existing article")
+
     update_product_query = """UPDATE Products
     SET ProductArticle = %s, ProductName = %s, BuyingPrice = %s, SellingPrice = %s, 
     ProductTypes_ProductType = %s, MeasurmentUnits_MeasurmentUnitsName = %s
@@ -76,9 +83,6 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
 
     connector.commit()
     connector.close()
-
-    updated_record = [article, name, float_buy_price, float_sel_price, prod_type, prod_unit]
-    return updated_record
 
 
 def del_product(article):
