@@ -13,7 +13,7 @@ def get_clients_data() -> list:
     return cursor.fetchall()
 
 
-def add_client(card, fam, name, telephone, discount) -> list:
+def add_client(card, fam, name, telephone, discount):
     if not (card.isdigit() and len(card) == 10):
         raise TypeError("Incorrect card")
 
@@ -32,17 +32,18 @@ def add_client(card, fam, name, telephone, discount) -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
+    check_card_query = """SELECT count(*) FROM Clients WHERE DiscountCardNumber = %s;"""
+    cursor.execute(check_card_query, (card,))
+    if cursor.fetchall()[0][0] != 0:
+        raise TypeError("Existing card")
+
     add_clients_query = "INSERT INTO Clients VALUES(%s, %s, %s, %s, %s);"
     cursor.execute(add_clients_query, (card, fam, name, telephone, discount))
     connector.commit()
     connector.close()
 
-    added_record = [card, fam, name, telephone, discount]
 
-    return added_record
-
-
-def update_client(old_card, card, fam, name, telephone, discount) -> list:
+def update_client(old_card, card, fam, name, telephone, discount):
     if not (card.isdigit() and len(card) == 10):
         raise TypeError("Incorrect card")
 
@@ -61,16 +62,17 @@ def update_client(old_card, card, fam, name, telephone, discount) -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
+    check_card_query = """SELECT count(*) FROM Clients WHERE DiscountCardNumber = %s;"""
+    cursor.execute(check_card_query, (card,))
+    if cursor.fetchall()[0][0] != 0 and old_card != card:
+        raise TypeError("Existing card")
+
     update_client_query = """UPDATE Clients
     Set DiscountCardNumber = %s, FirstName = %s, LastName = %s, TelephoneNumber = %s, DiscountPercentage = %s
     WHERE DiscountCardNumber = %s;"""
     cursor.execute(update_client_query, (card, fam, name, telephone, discount, old_card))
     connector.commit()
     connector.close()
-
-    updated_record = [card, fam, name, telephone, discount]
-
-    return updated_record
 
 
 def del_client(card):

@@ -2,7 +2,7 @@ import customtkinter as ctk
 import Back.backend_for_clients as back
 import mysql.connector.errors
 from tksheet import Sheet
-from global_const import *
+from Front.global_const import *
 from Front.dialog_window import InformationDialog, ModalDialog
 
 
@@ -330,7 +330,8 @@ class ClientsForm(ctk.CTkFrame):
         telephone = self.__client_telephone_entry.get()
         discount = self.__client_discount_entry.get()
         try:
-            added_record = back.add_client(card, fam, name, telephone, discount)
+            back.add_client(card, fam, name, telephone, discount)
+            added_record = [card, fam, name, telephone, discount]
             self.__clients_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__clients_table.deselect(row="all")
@@ -339,11 +340,6 @@ class ClientsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except mysql.connector.errors.IntegrityError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Клиент с данным номером карты уже\nприсутствует в базе данных")
         except TypeError as current_error:
             if current_error.args[0] == "Incorrect card":
                 info = "Некорректный формат номера карты. Он должен состоять из\n10 цифр!"
@@ -355,6 +351,8 @@ class ClientsForm(ctk.CTkFrame):
                 info = "Некорректный формат номера телефона!"
             elif current_error.args[0] == "Incorrect discount":
                 info = "Некорректный формат скидки. Она должна являтся числом и \nсоставлять не менее 1 и не более 100 %."
+            elif current_error.args[0] == "Existing card":
+                info = "Клиент с данным номером карты уже\nприсутствует в базе данных"
             else:
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
@@ -410,7 +408,8 @@ class ClientsForm(ctk.CTkFrame):
             telephone = self.__client_telephone_entry.get()
             discount = self.__client_discount_entry.get()
             try:
-                updated_record = back.update_client(old_card, card, fam, name, telephone, discount)
+                back.update_client(old_card, card, fam, name, telephone, discount)
+                updated_record = [card, fam, name, telephone, discount]
                 self.__clients_table.delete_row(rows=selected_row)
                 self.__clients_table.insert_row(idx=selected_row, row=updated_record, redraw=True)
                 self.__clearing_entrys()
@@ -420,11 +419,6 @@ class ClientsForm(ctk.CTkFrame):
                     self.master,
                     "Ошибка подключения к БД!",
                     "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-            except mysql.connector.errors.IntegrityError:
-                InformationDialog(
-                    self.master,
-                    "Некорректный ввод!",
-                    "Клиент с данным номером карты уже\nприсутствует в базе данных")
             except TypeError as current_error:
                 if current_error.args[0] == "Incorrect card":
                     info = "Некорректный формат номера карты. Он должен состоять из\n10 цифр!"
@@ -436,6 +430,8 @@ class ClientsForm(ctk.CTkFrame):
                     info = "Некорректный формат номера телефона!"
                 elif current_error.args[0] == "Incorrect discount":
                     info = "Некорректный формат скидки. Он должна являтся числом и \nсоставлять не менее 1 и не более 100 %."
+                elif current_error.args[0] == "Existing card":
+                    info = "Клиент с данным номером карты уже\nприсутствует в базе данных"
                 else:
                     info = "Непредвиденная ошибка :("
                 InformationDialog(self.master, "Некорректный ввод!", info)
