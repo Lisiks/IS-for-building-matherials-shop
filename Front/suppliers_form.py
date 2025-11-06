@@ -232,7 +232,7 @@ class SuppliersForm(ctk.CTkFrame):
 
         ctk.CTkLabel(
             master=found_frame,
-            text="Найти товар",
+            text="Найти поставщика",
             font=("Arial", font_size)
         ).grid(row=0, column=0, sticky="w", padx=2)
 
