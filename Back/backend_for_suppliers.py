@@ -13,7 +13,7 @@ def get_suppliers_data() -> list:
     return cursor.fetchall()
 
 
-def add_supplier(inn, name, address, telephone, email) -> list:
+def add_supplier(inn, name, address, telephone, email):
     if not inn_validation(inn):
         raise TypeError("Incorrect inn")
 
@@ -31,18 +31,19 @@ def add_supplier(inn, name, address, telephone, email) -> list:
 
     connector = get_connector()
     cursor = connector.cursor()
+
+    check_inn_query = """SELECT count(*) FROM Suppliers WHERE INN = %s;"""
+    cursor.execute(check_inn_query, (inn,))
+    if cursor.fetchall()[0][0] != 0:
+        raise TypeError("Existing inn")
 
     add_supplier_query = "INSERT INTO Suppliers VALUES(%s, %s, %s, %s, %s);"
     cursor.execute(add_supplier_query, (inn, name, address, telephone, email))
     connector.commit()
     connector.close()
 
-    added_record = [inn, name, address, telephone, email]
 
-    return added_record
-
-
-def update_supplier(old_inn, inn, name, address, telephone, email) -> list:
+def update_supplier(old_inn, inn, name, address, telephone, email):
     if not inn_validation(inn):
         raise TypeError("Incorrect inn")
 
@@ -60,6 +61,11 @@ def update_supplier(old_inn, inn, name, address, telephone, email) -> list:
 
     connector = get_connector()
     cursor = connector.cursor()
+
+    check_inn_query = """SELECT count(*) FROM Suppliers WHERE INN = %s;"""
+    cursor.execute(check_inn_query, (inn,))
+    if cursor.fetchall()[0][0] != 0 and old_inn != inn:
+        raise TypeError("Existing inn")
 
     update_supplier_query = """UPDATE Suppliers
     Set INN = %s, SuppliersCompany = %s, Address = %s, TelephoneNumber = %s, Email = %s
@@ -67,10 +73,6 @@ def update_supplier(old_inn, inn, name, address, telephone, email) -> list:
     cursor.execute(update_supplier_query, (inn, name, address, telephone, email, old_inn))
     connector.commit()
     connector.close()
-
-    updated_record = [inn, name, address, telephone, email]
-
-    return updated_record
 
 
 def del_supplier(inn):

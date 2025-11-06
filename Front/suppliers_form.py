@@ -2,7 +2,7 @@ import customtkinter as ctk
 import mysql.connector.errors
 import Back.backend_for_suppliers as back
 from tksheet import Sheet
-from global_const import *
+from Front.global_const import *
 from Front.dialog_window import InformationDialog, ModalDialog
 
 
@@ -330,7 +330,8 @@ class SuppliersForm(ctk.CTkFrame):
         telephone = self.__suppliers_telephone_entry.get()
         email = self.__suppliers_mail_entry.get()
         try:
-            added_record = back.add_supplier(inn, name, address, telephone, email)
+            back.add_supplier(inn, name, address, telephone, email)
+            added_record = [inn, name, address, telephone, email]
             self.__suppliers_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__suppliers_table.deselect(row="all")
@@ -339,11 +340,6 @@ class SuppliersForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except mysql.connector.errors.IntegrityError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Поставщик с данным ИНН уже присутствует\nв базе данных")
         except TypeError as current_error:
             if current_error.args[0] == "Incorrect inn":
                 info = "Некорректный формат ИНН. Он должен состоять из\n10 цифр!"
@@ -355,6 +351,8 @@ class SuppliersForm(ctk.CTkFrame):
                 info = "Некорректный формат номера телефона!"
             elif current_error.args[0] == "Incorrect email":
                 info = "Некорректный формат электронной почты. Он должна состоять\nне менее чем из 5 и не более чем из 30 символов,\nа также содержать '@'!"
+            elif current_error.args[0] == "Existing inn":
+                info = "Поставщик с данным ИНН уже присутствует\nв базе данных"
             else:
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
@@ -410,7 +408,8 @@ class SuppliersForm(ctk.CTkFrame):
             telephone = self.__suppliers_telephone_entry.get()
             email = self.__suppliers_mail_entry.get()
             try:
-                updated_record = back.update_supplier(old_inn, inn, name, address, telephone, email)
+                back.update_supplier(old_inn, inn, name, address, telephone, email)
+                updated_record = [inn, name, address, telephone, email]
                 self.__suppliers_table.delete_row(rows=selected_row)
                 self.__suppliers_table.insert_row(idx=selected_row, row=updated_record, redraw=True)
                 self.__clearing_entrys()
@@ -420,11 +419,6 @@ class SuppliersForm(ctk.CTkFrame):
                     self.master,
                     "Ошибка подключения к БД!",
                     "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-            except mysql.connector.errors.IntegrityError:
-                InformationDialog(
-                    self.master,
-                    "Некорректный ввод!",
-                    "Поставщик с данным ИНН уже присутствует\nв базе данных")
             except TypeError as current_error:
                 if current_error.args[0] == "Incorrect inn":
                     info = "Некорректный формат ИНН. Он должен состоять из\n10 цифр!"
@@ -436,6 +430,8 @@ class SuppliersForm(ctk.CTkFrame):
                     info = "Некорректный формат номера телефона!"
                 elif current_error.args[0] == "Incorrect email":
                     info = "Некорректный формат электронной почты. Он должна состоять\nне менее чем из 5 и не более чем из 30 символов,\nа также содержать '@'!"
+                elif current_error.args[0] == "Existing inn":
+                    info = "Поставщик с данным ИНН уже присутствует\nв базе данных"
                 else:
                     info = "Непредвиденная ошибка :("
                 InformationDialog(self.master, "Некорректный ввод!", info)
