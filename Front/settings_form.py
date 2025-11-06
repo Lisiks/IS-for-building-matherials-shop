@@ -2,8 +2,8 @@ import customtkinter as ctk
 import Back.backend_for_settings as back
 import mysql.connector.errors
 
-from global_const import *
-from dialog_window import InformationDialog, ModalDialog
+from Front.global_const import *
+from Front.dialog_window import InformationDialog, ModalDialog
 
 
 class SettingsForm(ctk.CTkFrame):
@@ -254,21 +254,19 @@ class SettingsForm(ctk.CTkFrame):
             values_list.append(product_type)
             self.__product_types_combobox.configure(values=values_list)
 
-        except TypeError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Длинна введенного типа должна быть не более 30\nи не менее 3 символов!")
+        except TypeError as current_error:
+            if current_error.args[0] == "Incorrect type length":
+                info = "Длинна введенного типа должна быть не более 30\nи не менее 3 символов!"
+            elif current_error.args[0] == "Existing type":
+                info = "Данный тип уже присутствует в базе данных!"
+            else:
+                info = "Непредвиденная ошибка :("
+            InformationDialog(self.master,"Некорректный ввод!", info)
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except mysql.connector.errors.IntegrityError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Данный тип уже присутствует в базе данных!")
 
     def __add_product_unit(self):
         product_unit = self.__product_unit_combobox.get()
@@ -278,21 +276,19 @@ class SettingsForm(ctk.CTkFrame):
             values_list = list(self.__product_unit_combobox.cget("values"))
             values_list.append(product_unit)
             self.__product_unit_combobox.configure(values=values_list)
-        except TypeError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Длинна введенной единицы измерения должна быть не более 30\nи не менее 1 символа!")
+        except TypeError as current_error:
+            if current_error.args[0] == "Incorrect unit length":
+                info = "Длинна введенной единицы измерения должна быть не более 30\nи не менее 1 символа!"
+            elif current_error.args[0] == "Existing unit":
+                info = "Данная единица измерения уже присутствует в базе данных!"
+            else:
+                info = "Непредвиденная ошибка :("
+            InformationDialog(self.master, "Некорректный ввод!", info)
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-        except mysql.connector.errors.IntegrityError:
-            InformationDialog(
-                self.master,
-                "Некорректный ввод!",
-                "Данная единица измерения уже присутствует в базе данных!")
 
     def __del_product_type(self):
         product_type = self.__product_types_combobox.get()

@@ -6,13 +6,10 @@ from os.path import abspath
 
 
 def get_organization_data() -> dict:
-    organization_data_file_path = abspath("../JSON/organization_data.json")
+    organization_data_file_path = abspath("JSON/organization_data.json")
 
     with open(organization_data_file_path, "r", encoding="utf-8") as org_data_file:
         org_data = json.loads(json.load(org_data_file))
-
-
-
     return org_data
 
 
@@ -72,6 +69,11 @@ def add_product_type(product_type):
     connector = get_connector()
     cursor = connector.cursor()
 
+    check_type_query = """SELECT count(*) FROM ProductTypes WHERE ProductType = %s;"""
+    cursor.execute(check_type_query, (product_type,))
+    if cursor.fetchall()[0][0] != 0:
+        raise TypeError("Existing type")
+
     add_query = "INSERT INTO ProductTypes VALUES(%s);"
     cursor.execute(add_query, (product_type,))
 
@@ -84,6 +86,11 @@ def add_product_unit(product_unit):
         raise TypeError("Incorrect unit length")
     connector = get_connector()
     cursor = connector.cursor()
+
+    check_unit_query = """SELECT count(*) FROM MeasurmentUnits WHERE MeasurmentUnitName = %s;"""
+    cursor.execute(check_unit_query, (product_unit,))
+    if cursor.fetchall()[0][0] != 0:
+        raise TypeError("Existing unit")
 
     add_query = "INSERT INTO MeasurmentUnits VALUES(%s);"
     cursor.execute(add_query, (product_unit,))
@@ -123,5 +130,3 @@ def del_product_unit(product_unit):
 
     connector.commit()
     connector.close()
-
-
