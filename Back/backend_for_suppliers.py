@@ -68,7 +68,7 @@ def update_supplier(old_inn, inn, name, address, telephone, email):
         raise TypeError("Existing inn")
 
     update_supplier_query = """UPDATE Suppliers
-    Set INN = %s, SuppliersCompany = %s, Address = %s, TelephoneNumber = %s, Email = %s
+    Set INN = %s, SupplierCompany = %s, Address = %s, TelephoneNumber = %s, Email = %s
     WHERE INN = %s;"""
     cursor.execute(update_supplier_query, (inn, name, address, telephone, email, old_inn))
     connector.commit()
@@ -93,7 +93,7 @@ def get_finding_suppliers(attribute) -> list:
     liked_attribute = f"%{attribute}%"
 
     selection_query = """SELECT * FROM Suppliers 
-    WHERE INN LIKE %s OR SuppliersCompany LIKE %s OR Address LIKE %s OR TelephoneNumber LIKE %s OR Email LIKE %s;"""
+    WHERE INN LIKE %s OR SupplierCompany LIKE %s OR Address LIKE %s OR TelephoneNumber LIKE %s OR Email LIKE %s;"""
     cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute, liked_attribute, liked_attribute))
 
     connector.close()

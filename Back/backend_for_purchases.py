@@ -37,7 +37,7 @@ def add_purchase(data, suppliers_inn, document, product_article, product_count) 
         raise TypeError("Article doesnt exist")
 
     add_purchases_query = """INSERT INTO Purchases 
-    (PurchaseData, Suppliers_INN, LandingBillNumber, Products_ProductArticle, ProductCount)
+    (PurchaseDate, Suppliers_INN, LandingBillNumber, Products_ProductArticle, ProductCount)
     VALUES(%s, %s, %s, %s, %s)"""
     cursor.execute(add_purchases_query, (data, suppliers_inn, document, product_article, int(product_count)))
     connector.commit()
@@ -57,7 +57,7 @@ def del_purchase(purchases_id):
     connector = get_connector()
     cursor = connector.cursor()
 
-    delete_purcahse_query = """DELETE FROM Purchases WHERE idPurchases = %s"""
+    delete_purcahse_query = """DELETE FROM Purchases WHERE ID = %s"""
     cursor.execute(delete_purcahse_query, (purchases_id,))
     connector.commit()
     connector.close()
@@ -71,11 +71,11 @@ def get_finding_purchases(attribute) -> list:
 
     if attribute.isdigit():
         selection_query = """SELECT * FROM Purchases 
-        WHERE PurchaseData LIKE %s OR Suppliers_INN LIKE %s OR LandingBillNumber LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount LIKE %s;"""
+        WHERE PurchaseDate LIKE %s OR Suppliers_INN LIKE %s OR LandingBillNumber LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount LIKE %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute, liked_attribute, int(attribute)))
     else:
         selection_query = """SELECT * FROM Purchases 
-        WHERE PurchaseData LIKE %s OR LandingBillNumber LIKE %s;"""
+        WHERE PurchaseDate LIKE %s OR LandingBillNumber LIKE %s;"""
         cursor.execute(selection_query,(liked_attribute, liked_attribute))
     connector.close()
     return cursor.fetchall()
