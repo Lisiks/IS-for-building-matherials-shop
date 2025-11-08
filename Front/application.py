@@ -1,17 +1,16 @@
 import customtkinter as ctk
-from tkinter.messagebox import showerror
 
-from main_menu_form import MainMenuForm
-from nomenclature_form import NomenclatureForm
-from sales_form import SalesForm
-from purchases_form import PurchasesForm
-from write_offs_form import WriteOffsForm
-from suppliers_form import SuppliersForm
-from clients_form import ClientsForm
-from reports_form import ReportsForm
+from Front.main_menu_form import MainMenuForm
+from Front.nomenclature_form import NomenclatureForm
+from Front.sales_form import SalesForm
+from Front.purchases_form import PurchasesForm
+from Front.write_offs_form import WriteOffsForm
+from Front.suppliers_form import SuppliersForm
+from Front.clients_form import ClientsForm
+from Front.reports_form import ReportsForm
 
 
-from global_const import *
+from Front.global_const import *
 
 
 class Application(ctk.CTk):
@@ -146,8 +145,3 @@ class Application(ctk.CTk):
 
     def run(self):
         self.mainloop()
-
-
-my_application = Application()
-if __name__ == '__main__':
-    my_application.run()

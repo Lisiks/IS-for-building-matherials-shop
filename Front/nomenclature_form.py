@@ -3,7 +3,7 @@ import Back.backend_for_nomenclature as back
 import mysql.connector.errors
 from tksheet import Sheet
 from Front.dialog_window import InformationDialog, ModalDialog
-from Back.backend_for_settings import get_product_types, get_product_units
+from Back.query_for_comboboxes_values import get_product_types, get_product_units
 from Front.global_const import *
 
 
@@ -175,7 +175,7 @@ class NomenclatureForm(ctk.CTkFrame):
             width=type_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            state="readonly",
+            state="readonly"
         )
 
         self.__unit_combobox = ctk.CTkComboBox(
@@ -183,7 +183,7 @@ class NomenclatureForm(ctk.CTkFrame):
             width=unit_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            state="readonly",
+            state="readonly"
         )
 
         self.__article_entry.grid(row=1, column=0)
@@ -358,7 +358,7 @@ class NomenclatureForm(ctk.CTkFrame):
         prod_unit = self.__unit_combobox.get()
         try:
             back.add_product(article, name, buy_price, sel_price, prod_type, prod_unit)
-            added_record = [article, name, buy_price, sel_price, prod_type, prod_unit]
+            added_record = [article, name, buy_price, sel_price, prod_type, prod_unit, 0]
             self.__nomenclature_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__nomenclature_table.deselect(row="all")
@@ -367,6 +367,11 @@ class NomenclatureForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Ошибка данных!",
+                "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
         except ValueError:
             InformationDialog(
                 self.master,
@@ -378,7 +383,9 @@ class NomenclatureForm(ctk.CTkFrame):
             elif current_error.args[0] == "Incorrect name length":
                 info = "Некорректный формат наименования. Его длинна должна быть\nне менее 3 и не более 30 символов!"
             elif current_error.args[0] == "Incorrect buy price value":
-                info = "Некорректная величина цены. Цена должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
+                info = "Некорректная величина цены закупки. Она должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
+            elif current_error.args[0] == "Incorrect sel price value":
+                info = "Некорректная величина цены продажи. Она должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
             elif current_error.args[0] == "Type or unit is empy":
                 info = "Некорректная запись. Вы обязательно должны указать\nтип и единицу измерения товара!"
             elif current_error.args[0] == "Existing article":
@@ -450,6 +457,11 @@ class NomenclatureForm(ctk.CTkFrame):
                     self.master,
                     "Ошибка подключения к БД!",
                     "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+            except mysql.connector.errors.IntegrityError:
+                InformationDialog(
+                    self.master,
+                    "Ошибка данных!",
+                    "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
             except ValueError:
                 InformationDialog(
                     self.master,

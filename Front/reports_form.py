@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from global_const import *
+from Front.global_const import *
 
 
 class ReportsForm(ctk.CTkFrame):
@@ -10,8 +10,8 @@ class ReportsForm(ctk.CTkFrame):
         head_font_size = round(CLASSIC_HEAD_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
         font_size = round(CLASSIC_WIDGETS_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
 
-        x_padding = 2
-        y_padding = 6
+        x_padding = round(2 * (window_w / CLASSIC_WINDOW_WIDTH))
+        y_padding = round(6 * (window_h / CLASSIC_WINDOW_HEIGHT))
 
         ctk.CTkLabel(
             master=self,

@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import CTkTable
-from global_const import *
+from Front.global_const import *
 
 
 class WriteOffsForm(ctk.CTkFrame):
@@ -163,7 +163,7 @@ class WriteOffsForm(ctk.CTkFrame):
 
         ctk.CTkLabel(
             master=found_frame,
-            text="Найти товар",
+            text="Найти запись",
             font=("Arial", font_size)
         ).grid(row=0, column=0, sticky="w", padx=2)
 

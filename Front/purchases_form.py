@@ -3,6 +3,7 @@ import Back.backend_for_purchases as back
 import mysql.connector.errors
 from Front.global_const import *
 from tksheet import Sheet
+from Back.query_for_comboboxes_values import get_products_articles, get_suppliers_inn
 from Front.dialog_window import InformationDialog, ModalDialog
 from datetime import datetime
 
@@ -142,12 +143,11 @@ class PurchasesForm(ctk.CTkFrame):
 
         creating_frame = ctk.CTkFrame(master=self, fg_color=self.cget("fg_color"))
 
-        self.__suppliers_inn_entry = ctk.CTkEntry(
+        self.__suppliers_inn_combobox = ctk.CTkComboBox(
             master=creating_frame,
             width=suppliers_inn_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            placeholder_text="ИНН поставщика: 0000000000"
         )
 
         self.__document_entry = ctk.CTkEntry(
@@ -158,12 +158,11 @@ class PurchasesForm(ctk.CTkFrame):
             placeholder_text="№ документа:"
         )
 
-        self.__article_entry = ctk.CTkEntry(
+        self.__article_combobox = ctk.CTkComboBox(
             master=creating_frame,
             width=article_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            placeholder_text="Артикул: 0000000000"
         )
 
         self.__count_entry = ctk.CTkEntry(
@@ -174,9 +173,9 @@ class PurchasesForm(ctk.CTkFrame):
             placeholder_text="Кол-во:"
         )
 
-        self.__suppliers_inn_entry.grid(row=1, column=0)
+        self.__suppliers_inn_combobox.grid(row=1, column=0)
         self.__document_entry.grid(row=1, column=1)
-        self.__article_entry.grid(row=1, column=2)
+        self.__article_combobox.grid(row=1, column=2)
         self.__count_entry.grid(row=1, column=3)
 
         ctk.CTkLabel(
@@ -262,14 +261,12 @@ class PurchasesForm(ctk.CTkFrame):
         return crud_frame
 
     def __clearing_entrys(self):
-        self.__suppliers_inn_entry.delete(0, ctk.END)
+        self.__suppliers_inn_combobox.set("")
         self.__document_entry.delete(0, ctk.END)
-        self.__article_entry.delete(0, ctk.END)
+        self.__article_combobox.set("")
         self.__count_entry.delete(0, ctk.END)
 
-        self.__suppliers_inn_entry._activate_placeholder()
         self.__document_entry._activate_placeholder()
-        self.__article_entry._activate_placeholder()
         self.__count_entry._activate_placeholder()
 
     def __table_row_selection(self, event):
@@ -277,9 +274,9 @@ class PurchasesForm(ctk.CTkFrame):
         self.__purchases_table.select_row(selected_info.row)
         *_, supplier_inn, document, product_article, product_count = self.__purchases_table.get_row_data(r=selected_info.row)
         self.__clearing_entrys()
-        self.__suppliers_inn_entry.insert(0, supplier_inn)
+        self.__suppliers_inn_combobox.set(supplier_inn)
         self.__document_entry.insert(0, document)
-        self.__article_entry.insert(0, product_article)
+        self.__article_combobox.set(product_article)
         self.__count_entry.insert(0, product_count)
 
     def __updating_table_data(self, new_data):
@@ -291,26 +288,32 @@ class PurchasesForm(ctk.CTkFrame):
         self.__clearing_entrys()
         self.__found_entry.delete(0, ctk.END)
         table_data = list()
+        suppliers_inn = list()
+        products_articles = list()
 
         try:
             table_data = back.get_purchases()
+            suppliers_inn = get_suppliers_inn()
+            products_articles = get_products_articles()
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
 
+        self.__suppliers_inn_combobox.configure(values=suppliers_inn)
+        self.__article_combobox.configure(values=products_articles)
         self.__updating_table_data(table_data)
 
     def __add_purchase(self):
         date = datetime.now().replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
-        supplier_inn = self.__suppliers_inn_entry.get()
+        supplier_inn = self.__suppliers_inn_combobox.get()
         document = self.__document_entry.get()
-        product_article = self.__article_entry.get()
+        product_article = self.__article_combobox.get()
         product_count = self.__count_entry.get()
         try:
-            back.add_purchase(date, supplier_inn, document, product_article, product_count)
-            added_record = [date, supplier_inn, document, product_article, product_count]
+            id = back.add_purchase(date, supplier_inn, document, product_article, product_count)
+            added_record = [id, date, supplier_inn, document, product_article, product_count]
             self.__purchases_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__purchases_table.deselect(row="all")
@@ -319,6 +322,11 @@ class PurchasesForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Ошибка данных!",
+                "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
         except TypeError as current_error:
             if current_error.args[0] == "Incorrect inn":
                 info = "Некорректный формат ИНН. Он должен состоять из\n10 цифр!"

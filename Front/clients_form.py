@@ -233,7 +233,7 @@ class ClientsForm(ctk.CTkFrame):
 
         ctk.CTkLabel(
             master=found_frame,
-            text="Найти товар",
+            text="Найти клиента",
             font=("Arial", font_size)
         ).grid(row=0, column=0, sticky="w", padx=2)
 
@@ -340,6 +340,11 @@ class ClientsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Ошибка данных!",
+                "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
         except TypeError as current_error:
             if current_error.args[0] == "Incorrect card":
                 info = "Некорректный формат номера карты. Он должен состоять из\n10 цифр!"
@@ -419,6 +424,11 @@ class ClientsForm(ctk.CTkFrame):
                     self.master,
                     "Ошибка подключения к БД!",
                     "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+            except mysql.connector.errors.IntegrityError:
+                InformationDialog(
+                    self.master,
+                    "Ошибка данных!",
+                    "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
             except TypeError as current_error:
                 if current_error.args[0] == "Incorrect card":
                     info = "Некорректный формат номера карты. Он должен состоять из\n10 цифр!"

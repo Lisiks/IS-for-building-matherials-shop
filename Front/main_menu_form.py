@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from global_const import *
-from settings_form import SettingsForm
+from Front.global_const import *
+from Front.settings_form import SettingsForm
 
 
 class MainMenuForm(ctk.CTkFrame):

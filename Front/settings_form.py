@@ -4,6 +4,7 @@ import mysql.connector.errors
 
 from Front.global_const import *
 from Front.dialog_window import InformationDialog, ModalDialog
+from Back.query_for_comboboxes_values import get_product_units, get_product_types
 
 
 class SettingsForm(ctk.CTkFrame):
@@ -234,9 +235,9 @@ class SettingsForm(ctk.CTkFrame):
         self.__product_types_combobox.configure(values=[])
         self.__product_types_combobox.configure(values=[])
         try:
-            types_list = back.get_product_types()
+            types_list = get_product_types()
             self.__product_types_combobox.configure(values=types_list)
-            units_list = back.get_product_units()
+            units_list = get_product_units()
             self.__product_unit_combobox.configure(values=units_list)
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
@@ -267,6 +268,11 @@ class SettingsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Ошибка данных!",
+                "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
 
     def __add_product_unit(self):
         product_unit = self.__product_unit_combobox.get()
@@ -289,6 +295,11 @@ class SettingsForm(ctk.CTkFrame):
                 self.master,
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        except mysql.connector.errors.IntegrityError:
+            InformationDialog(
+                self.master,
+                "Ошибка данных!",
+                "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
 
     def __del_product_type(self):
         product_type = self.__product_types_combobox.get()

@@ -13,7 +13,7 @@ def get_purchases() -> list:
     return cursor.fetchall()
 
 
-def add_purchase(data, suppliers_inn, document, product_article, product_count):
+def add_purchase(data, suppliers_inn, document, product_article, product_count) -> int:
     if not inn_validation(suppliers_inn):
         raise TypeError("Incorrect inn")
     if not 1 <= len(document) <= 30:
@@ -42,11 +42,15 @@ def add_purchase(data, suppliers_inn, document, product_article, product_count):
     cursor.execute(add_purchases_query, (data, suppliers_inn, document, product_article, int(product_count)))
     connector.commit()
 
+    cursor.execute("""SELECT LAST_INSERT_ID();""")
+    new_record_id = cursor.fetchall()[0][0]
+
     update_product_count_query = """UPDATE Products SET Count = Count + %s WHERE ProductArticle = %s;"""
     cursor.execute(update_product_count_query, (product_count, product_article))
     connector.commit()
 
     connector.close()
+    return new_record_id
 
 
 def del_purchase(purchases_id):

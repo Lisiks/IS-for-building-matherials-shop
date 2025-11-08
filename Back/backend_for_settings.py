@@ -36,32 +36,6 @@ def set_organization_data(org_name, org_inn, org_ogrn, org_telephone, org_addres
         json.dump(json.dumps(org_data, indent=4), org_data_file)
 
 
-def get_product_types() -> tuple:
-    connector = get_connector()
-    cursor = connector.cursor()
-
-    selection_query = "SELECT * FROM ProductTypes;"
-    cursor.execute(selection_query)
-
-    record_list = cursor.fetchall()
-    connector.close()
-
-    return tuple(map(lambda record: record[0], record_list))
-
-
-def get_product_units() -> tuple:
-    connector = get_connector()
-    cursor = connector.cursor()
-
-    selection_query = "SELECT * FROM MeasurmentUnits;"
-    cursor.execute(selection_query)
-
-    record_list = cursor.fetchall()
-    connector.close()
-
-    return tuple(map(lambda record: record[0], record_list))
-
-
 def add_product_type(product_type):
     if not (3 <= len(product_type) <= 30):
         raise TypeError("Incorrect type length")

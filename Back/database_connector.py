@@ -4,7 +4,7 @@ from os.path import abspath
 
 
 def get_connector() -> mysql.connector.connect:
-    config_file_path = abspath("../JSON/database_connect_config.json")
+    config_file_path = abspath("JSON/database_connect_config.json")
 
     with open(config_file_path, "r", encoding="utf-8") as config_file:
         config_data = json.load(config_file)
