@@ -95,7 +95,7 @@ class PurchasesForm(ctk.CTkFrame):
 
         self.__purchases_table.headers(
             [
-             "0",
+             "ID",
              "Дата и время операции",
              "ИНН поставщика",
              "№ транспортной накладной",
@@ -312,8 +312,8 @@ class PurchasesForm(ctk.CTkFrame):
         product_article = self.__article_combobox.get()
         product_count = self.__count_entry.get()
         try:
-            id = back.add_purchase(date, supplier_inn, document, product_article, product_count)
-            added_record = [id, date, supplier_inn, document, product_article, product_count]
+            operation_id = back.add_purchase(date, supplier_inn, document, product_article, product_count)
+            added_record = [operation_id, date, supplier_inn, document, product_article, product_count]
             self.__purchases_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__purchases_table.deselect(row="all")
