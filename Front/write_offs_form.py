@@ -105,7 +105,7 @@ class WriteOffsForm(ctk.CTkFrame):
             font=("Arial", font_size + 3),
             anchor="center",
             text_color="white"
-        ).grid(row=0, column=0, padx=3)
+        ).grid(row=0, column=0, padx=2)
 
         self.__write_offs_table.grid(row=1, column=0, sticky="w", pady=5)
 
@@ -218,7 +218,7 @@ class WriteOffsForm(ctk.CTkFrame):
             width=button_w,
             height=button_h,
             font=("Arial", font_size),
-            command=self.__add_purchase
+            command=self.__add_write_off
         )
 
         self.__del_button = ctk.CTkButton(
@@ -227,7 +227,7 @@ class WriteOffsForm(ctk.CTkFrame):
             width=button_w,
             height=button_h,
             font=("Arial", font_size),
-            command=self.__del_purchases
+            command=self.__del_write_off
         )
 
         self.__add_button.grid(row=0, column=0, padx=2)
@@ -246,11 +246,6 @@ class WriteOffsForm(ctk.CTkFrame):
     def __table_row_selection(self, event):
         selected_info = event["selected"]
         self.__write_offs_table.select_row(selected_info.row)
-        *_, product_article, product_count, reason = self.__write_offs_table.get_row_data(r=selected_info.row)
-        self.__clearing_entrys()
-        self.__article_combobox.set(product_article)
-        self.__count_entry.insert(0, product_count)
-        self.__write_offs_reason_entry.insert(0, reason)
 
     def __updating_table_data(self, new_data):
         self.__write_offs_table.set_sheet_data(new_data)
@@ -275,7 +270,7 @@ class WriteOffsForm(ctk.CTkFrame):
         self.__article_combobox.configure(values=products_articles)
         self.__updating_table_data(table_data)
 
-    def __add_purchase(self):
+    def __add_write_off(self):
         date = datetime.now().replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
         product_article = self.__article_combobox.get()
         product_count = self.__count_entry.get()
@@ -311,7 +306,7 @@ class WriteOffsForm(ctk.CTkFrame):
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
 
-    def __del_purchases(self):
+    def __del_write_off(self):
         selected_table_row = self.__write_offs_table.get_selected_rows(return_tuple=True)
         if not selected_table_row:
             InformationDialog(

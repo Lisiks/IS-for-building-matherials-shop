@@ -245,14 +245,6 @@ class SalesForm(ctk.CTkFrame):
     def __table_row_selection(self, event):
         selected_info = event["selected"]
         self.__sales_table.select_row(selected_info.row)
-        *_, client_card, product_article, product_count = self.__sales_table.get_row_data(r=selected_info.row)
-        self.__clearing_entrys()
-        if client_card is None:
-            self.__client_combobox.set("")
-        else:
-            self.__client_combobox.set(client_card)
-        self.__article_combobox.set(product_article)
-        self.__count_entry.insert(0, product_count)
 
     def __updating_table_data(self, new_data):
         self.__sales_table.set_sheet_data(new_data)

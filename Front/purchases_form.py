@@ -272,12 +272,6 @@ class PurchasesForm(ctk.CTkFrame):
     def __table_row_selection(self, event):
         selected_info = event["selected"]
         self.__purchases_table.select_row(selected_info.row)
-        *_, supplier_inn, document, product_article, product_count = self.__purchases_table.get_row_data(r=selected_info.row)
-        self.__clearing_entrys()
-        self.__suppliers_inn_combobox.set(supplier_inn)
-        self.__document_entry.insert(0, document)
-        self.__article_combobox.set(product_article)
-        self.__count_entry.insert(0, product_count)
 
     def __updating_table_data(self, new_data):
         self.__purchases_table.set_sheet_data(new_data)
