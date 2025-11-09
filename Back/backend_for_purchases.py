@@ -71,7 +71,7 @@ def get_finding_purchases(attribute) -> list:
 
     if attribute.isdigit():
         selection_query = """SELECT * FROM Purchases 
-        WHERE PurchaseDate LIKE %s OR Suppliers_INN LIKE %s OR LandingBillNumber LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount LIKE %s;"""
+        WHERE PurchaseDate LIKE %s OR Suppliers_INN LIKE %s OR LandingBillNumber LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount = %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute, liked_attribute, int(attribute)))
     else:
         selection_query = """SELECT * FROM Purchases 

@@ -93,12 +93,12 @@ def get_finding_clients(attribute) -> list:
     liked_attribute = f"%{attribute}%"
     if attribute.isdigit():
         selection_query = """SELECT * FROM Clients 
-        WHERE DiscountCardNumber LIKE %s OR FirstName LIKE %s OR LastName LIKE %s OR TelephoneNumber LIKE %s OR DiscountPercentage LIKE %s;"""
+        WHERE DiscountCardNumber LIKE %s OR FirstName LIKE %s OR LastName LIKE %s OR TelephoneNumber LIKE %s OR DiscountPercentage = %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute, liked_attribute, int(attribute)))
     else:
         selection_query = """SELECT * FROM Clients
-        WHERE DiscountCardNumber LIKE %s OR FirstName LIKE %s OR LastName LIKE %s OR TelephoneNumber LIKE %s;"""
-        cursor.execute(selection_query,(liked_attribute, liked_attribute, liked_attribute, liked_attribute))
+        WHERE FirstName LIKE %s OR LastName LIKE %s OR TelephoneNumber LIKE %s;"""
+        cursor.execute(selection_query,(liked_attribute, liked_attribute, liked_attribute))
 
     connector.close()
     return cursor.fetchall()

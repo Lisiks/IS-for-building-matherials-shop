@@ -104,11 +104,11 @@ def get_finding_products(attribute) -> list:
 
     if attribute.isdigit():
         selection_query = """SELECT * FROM Products 
-        WHERE ProductArticle = %s OR Count = %s OR BuyingPrice = %s OR SellingPrice = %s OR
+        WHERE ProductArticle LIKE %s OR Count = %s OR BuyingPrice = %s OR SellingPrice = %s OR
         ProductName LIKE %s OR ProductTypes_ProductType LIKE %s OR MeasurmentUnits_MeasurmentUnitsName LIKE %s;"""
         cursor.execute(
             selection_query,
-            (int(attribute),
+            (liked_attribute,
              int(attribute),
              float(attribute),
              float(attribute),
