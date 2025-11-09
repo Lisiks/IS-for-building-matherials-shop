@@ -51,3 +51,16 @@ def get_suppliers_inn() -> list:
     connector.close()
 
     return list(map(lambda record: record[0], record_list))
+
+
+def get_client_cards() -> list:
+    connector = get_connector()
+    cursor = connector.cursor()
+
+    selection_query = "SELECT DiscountCardNumber FROM Clients;"
+    cursor.execute(selection_query)
+
+    record_list = cursor.fetchall()
+    connector.close()
+
+    return list(map(lambda record: record[0], record_list))
