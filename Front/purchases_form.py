@@ -148,6 +148,7 @@ class PurchasesForm(ctk.CTkFrame):
             width=suppliers_inn_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
+            command=self.__format_supplier_inn
         )
 
         self.__document_entry = ctk.CTkEntry(
@@ -163,6 +164,7 @@ class PurchasesForm(ctk.CTkFrame):
             width=article_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
+            command=self.__format_article
         )
 
         self.__count_entry = ctk.CTkEntry(
@@ -203,6 +205,12 @@ class PurchasesForm(ctk.CTkFrame):
         ).grid(row=0, column=3, sticky="w", padx=2)
 
         return creating_frame
+
+    def __format_supplier_inn(self, cb_choice):
+        self.__suppliers_inn_combobox.set(cb_choice[:cb_choice.index(" ")])
+
+    def __format_article(self, cb_choice):
+        self.__article_combobox.set(cb_choice[:cb_choice.index(" ")])
 
     def __create_found_frame(self, entry_w, entry_h, button_w, button_h, font_size) -> ctk.CTkFrame:
         found_frame = ctk.CTkFrame(master=self, fg_color=self.cget("fg_color"))

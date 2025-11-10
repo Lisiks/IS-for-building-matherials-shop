@@ -138,14 +138,16 @@ class SalesForm(ctk.CTkFrame):
             master=creating_frame,
             width=client_entry_w,
             height=entryes_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            command=self.__format_client_card
         )
 
         self.__article_combobox = ctk.CTkComboBox(
             master=creating_frame,
             width=article_entry_w,
             height=entryes_h,
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            command=self.__format_article
         )
 
         self.__count_entry = ctk.CTkEntry(
@@ -179,6 +181,12 @@ class SalesForm(ctk.CTkFrame):
         ).grid(row=0, column=2, sticky="w", padx=2)
 
         return creating_frame
+
+    def __format_client_card(self, cb_choice):
+        self.__client_combobox.set(cb_choice[:cb_choice.index(" ")])
+
+    def __format_article(self, cb_choice):
+        self.__article_combobox.set(cb_choice[:cb_choice.index(" ")])
 
     def __create_found_frame(self, entry_w, entry_h, button_w, button_h, font_size) -> ctk.CTkFrame:
         found_frame = ctk.CTkFrame(master=self, fg_color=self.cget("fg_color"))
