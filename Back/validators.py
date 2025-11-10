@@ -25,6 +25,9 @@ def telephone_validation(telephone_number) -> bool:
 def article_validation(article) -> bool:
     return len(article) == 10 and article.isdigit()
 
+def client_card_validation(card) -> bool:
+    return len(card) == 10 and card.isdigit()
+
 
 def float_validation(attribute) -> bool:
     try:

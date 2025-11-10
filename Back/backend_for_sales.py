@@ -1,5 +1,5 @@
 from Back.database_connector import get_connector
-from Back.validators import article_validation
+from Back.validators import article_validation, client_card_validation
 
 
 def get_sales() -> list:
@@ -19,7 +19,7 @@ def add_sale(date, client_card, product_article, product_count) -> int:
         raise TypeError("Incorrect article")
     if not product_count.isdigit() or int(product_count) < 1:
         raise TypeError("Incorrect count")
-    if client_card != "" and (not client_card.isdigit() or not len(client_card) == 10):
+    if client_card != "" and not client_card_validation(client_card):
         raise TypeError("Incorrect card")
 
     connector = get_connector()

@@ -1,5 +1,5 @@
 from Back.database_connector import get_connector
-from Back.validators import telephone_validation
+from Back.validators import telephone_validation, client_card_validation
 
 
 def get_clients_data() -> list:
@@ -14,7 +14,7 @@ def get_clients_data() -> list:
 
 
 def add_client(card, fam, name, telephone, discount):
-    if not (card.isdigit() and len(card) == 10):
+    if not client_card_validation(card):
         raise TypeError("Incorrect card")
 
     if not 2 <= len(name) <= 30:
@@ -44,7 +44,7 @@ def add_client(card, fam, name, telephone, discount):
 
 
 def update_client(old_card, card, fam, name, telephone, discount):
-    if not (card.isdigit() and len(card) == 10):
+    if not client_card_validation(card):
         raise TypeError("Incorrect card")
 
     if not 3 <= len(name) <= 30:
