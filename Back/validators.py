@@ -23,7 +23,7 @@ def telephone_validation(telephone_number) -> bool:
 
 
 def article_validation(article) -> bool:
-    return 1 <= len(article) <= 10 and article.isdigit()
+    return len(article) == 10 and article.isdigit()
 
 
 def float_validation(attribute) -> bool:

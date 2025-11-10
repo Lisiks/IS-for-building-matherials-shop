@@ -327,7 +327,7 @@ class PurchasesForm(ctk.CTkFrame):
             elif current_error.args[0] == "Incorrect document":
                 info = "Некорректная длинна номера документа. Он должен состоять\nне менее чем из 1 и не более чем из 30 символов!"
             elif current_error.args[0] == "Incorrect article":
-                info = "Некорректный формат артикула. Его длинна должна быть\nне менее 1 и не более 10 цифр!"
+                info = "Некорректный формат артикула. Он должен\nсостоять из 10 цифр!"
             elif current_error.args[0] == "Incorrect count":
                 info = "Некорректное кол-во товаров. Оно должно являться\nцелым положительным числом!"
             elif current_error.args[0] == "Suppliers doesnt exist":

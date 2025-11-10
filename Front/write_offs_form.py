@@ -293,7 +293,7 @@ class WriteOffsForm(ctk.CTkFrame):
                 "Во время вышего сеанса критически важные данные были изменены!\nПерезайдите в текущий раздел для обновления данных.")
         except TypeError as current_error:
             if current_error.args[0] == "Incorrect article":
-                info = "Некорректный формат артикула. Его длинна должна быть\nне менее 1 и не более 10 цифр!"
+                info = "Некорректный формат артикула. Он должен\nсостоять из 10 цифр!"
             elif current_error.args[0] == "Incorrect count":
                 info = "Некорректное кол-во товаров. Оно должно являться\nцелым положительным числом!"
             elif current_error.args[0] == "Incorrect reason":

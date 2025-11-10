@@ -378,8 +378,8 @@ class NomenclatureForm(ctk.CTkFrame):
                 "Некорректный ввод!",
                 "Цены продажи и закупки должны быть\nвещественным числом!")
         except TypeError as current_error:
-            if current_error.args[0] == "Incorrect article length":
-                info = "Некорректный формат артикула. Его длинна должна быть\nне менее 1 и не более 10 цифр!"
+            if current_error.args[0] == "Incorrect length":
+                info = "Некорректный формат артикула. Он должен\nсостоять из 10 цифр!"
             elif current_error.args[0] == "Incorrect name length":
                 info = "Некорректный формат наименования. Его длинна должна быть\nне менее 3 и не более 30 символов!"
             elif current_error.args[0] == "Incorrect buy price value":
@@ -468,8 +468,8 @@ class NomenclatureForm(ctk.CTkFrame):
                     "Некорректный ввод!",
                     "Цены продажи и закупки должны быть\nвещественным числом!")
             except TypeError as current_error:
-                if current_error.args[0] == "Incorrect article length":
-                    info = "Некорректный формат артикула. Его длинна должна быть\nне менее 1 и не более 10 цифр!"
+                if current_error.args[0] == "Incorrect length":
+                    info = "Некорректный формат артикула. Он должен\nсостоять из 10 цифр!"
                 elif current_error.args[0] == "Incorrect name length":
                     info = "Некорректный формат наименования. Его длинна должна быть\nне менее 3 и не более 30 символов!"
                 elif current_error.args[0] == "Incorrect buy price value":

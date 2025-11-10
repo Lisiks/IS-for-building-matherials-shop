@@ -16,7 +16,7 @@ def get_nomenclature() -> list:
 
 def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     if not article_validation(article):
-        raise TypeError("Incorrect article length")
+        raise TypeError("Incorrect length")
 
     if not (3 <= len(name) <= 30):
         raise TypeError("Incorrect name length")
@@ -51,7 +51,7 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
 
 def update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit):
     if not article_validation(article):
-        raise TypeError("Incorrect article length")
+        raise TypeError("Incorrect length")
 
     if not (3 <= len(name) <= 30):
         raise TypeError("Incorrect name length")
