@@ -29,9 +29,6 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     if not (0.01 <= float_sel_price <= 99999999.99):
         raise TypeError("Incorrect sel price value")
 
-    if prod_type == "" or prod_unit == "":
-        raise TypeError("Type or unit is empy")
-
     connector = get_connector()
     cursor = connector.cursor()
 
@@ -39,6 +36,16 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     cursor.execute(check_article_query, (article,))
     if cursor.fetchall()[0][0] != 0:
         raise TypeError("Existing article")
+
+    check_article_query = """SELECT count(*) FROM ProductTypes WHERE ProductType = %s;"""
+    cursor.execute(check_article_query, (prod_type,))
+    if cursor.fetchall()[0][0] == 0:
+        raise TypeError("Type doesnt exist")
+
+    check_article_query = """SELECT count(*) FROM MeasurmentUnits WHERE MeasurmentUnitName = %s;"""
+    cursor.execute(check_article_query, (prod_unit,))
+    if cursor.fetchall()[0][0] == 0:
+        raise TypeError("Unit doesnt exist")
 
     add_product_query = """INSERT INTO Products(ProductArticle, ProductName, BuyingPrice, SellingPrice, 
     ProductTypes_ProductType, MeasurmentUnits_MeasurmentUnitsName)
@@ -64,9 +71,6 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
     if not (0.01 <= float_sel_price <= 99999999.99):
         raise TypeError("Incorrect sel price value")
 
-    if prod_type == "" or prod_unit == "":
-        raise TypeError("Type or unit is empy")
-
     connector = get_connector()
     cursor = connector.cursor()
 
@@ -74,6 +78,16 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
     cursor.execute(check_article_query, (article,))
     if cursor.fetchall()[0][0] != 0 and old_article != article:
         raise TypeError("Existing article")
+
+    check_article_query = """SELECT count(*) FROM ProductTypes WHERE ProductType = %s;"""
+    cursor.execute(check_article_query, (prod_type,))
+    if cursor.fetchall()[0][0] == 0:
+        raise TypeError("Type doesnt exist")
+
+    check_article_query = """SELECT count(*) FROM MeasurmentUnits WHERE MeasurmentUnitName = %s;"""
+    cursor.execute(check_article_query, (prod_unit,))
+    if cursor.fetchall()[0][0] == 0:
+        raise TypeError("Unit doesnt exist")
 
     update_product_query = """UPDATE Products
     SET ProductArticle = %s, ProductName = %s, BuyingPrice = %s, SellingPrice = %s, 

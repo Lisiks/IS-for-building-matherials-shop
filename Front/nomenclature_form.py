@@ -175,7 +175,6 @@ class NomenclatureForm(ctk.CTkFrame):
             width=type_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            state="readonly"
         )
 
         self.__unit_combobox = ctk.CTkComboBox(
@@ -183,7 +182,6 @@ class NomenclatureForm(ctk.CTkFrame):
             width=unit_entry_w,
             height=entryes_h,
             font=("Arial", font_size),
-            state="readonly"
         )
 
         self.__article_entry.grid(row=1, column=0)
@@ -386,10 +384,12 @@ class NomenclatureForm(ctk.CTkFrame):
                 info = "Некорректная величина цены закупки. Она должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
             elif current_error.args[0] == "Incorrect sel price value":
                 info = "Некорректная величина цены продажи. Она должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
-            elif current_error.args[0] == "Type or unit is empy":
-                info = "Некорректная запись. Вы обязательно должны указать\nтип и единицу измерения товара!"
             elif current_error.args[0] == "Existing article":
                 info = "Товар с данным артикулом уже присутствует\nв базе данных"
+            elif current_error.args[0] == "Type doesnt exist":
+                info = "Указанный тип товара отсутствует в базе данных!"
+            elif current_error.args[0] == "Unit doesnt exist":
+                info = "Указанная единица измерения товара отсутствует в базе данных!"
             else:
                 info = "Непредвиденная ошибка :("
             InformationDialog(self.master, "Некорректный ввод!", info)
@@ -474,8 +474,10 @@ class NomenclatureForm(ctk.CTkFrame):
                     info = "Некорректный формат наименования. Его длинна должна быть\nне менее 3 и не более 30 символов!"
                 elif current_error.args[0] == "Incorrect buy price value":
                     info = "Некорректная величина цены. Цена должна составлять\nне менее 0.01 и не более 99999999.99 руб.!"
-                elif current_error.args[0] == "Type or unit is empy":
-                    info = "Некорректная запись. Вы обязательно должны указать\nтип и единицу измерения товара!"
+                elif current_error.args[0] == "Type doesnt exist":
+                    info = "Указанный тип товара отсутствует в базе данных!"
+                elif current_error.args[0] == "Unit doesnt exist":
+                    info = "Указанная единица измерения товара отсутствует в базе данных!"
                 elif current_error.args[0] == "Existing article":
                     info = "Товар с данным артикулом уже присутствует\nв базе данных"
                 else:
