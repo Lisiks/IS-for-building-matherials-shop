@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from PIL import Image
 
 from Front.main_menu_form import MainMenuForm
 from Front.nomenclature_form import NomenclatureForm
@@ -8,13 +9,13 @@ from Front.write_offs_form import WriteOffsForm
 from Front.suppliers_form import SuppliersForm
 from Front.clients_form import ClientsForm
 from Front.reports_form import ReportsForm
-
-
 from Front.global_const import *
 
 
 class Application(ctk.CTk):
     __CLASSIC_NAVIGATION_PANEL_FONT_SIZE = 30
+    __CLASSIC_BUTTON_IMAGE_W = 100
+    __CLASSIC_BUTTON_IMAGE_H = 100
 
     def __init__(self):
         super().__init__()
@@ -38,7 +39,6 @@ class Application(ctk.CTk):
         self.__navigation_panel.grid(row=0, column=0)
         self.change_form(self.__main_menu_form)
 
-
     def change_form(self, new_form: ctk.CTkFrame):
         if self.__current_form is not None:
             self.__current_form.grid_forget()
@@ -52,6 +52,9 @@ class Application(ctk.CTk):
 
         navigation_panel = ctk.CTkFrame(master=self)
 
+        button_image_w = round(self.__CLASSIC_BUTTON_IMAGE_W * (self.width / CLASSIC_WINDOW_WIDTH))
+        button_image_h = round(self.__CLASSIC_BUTTON_IMAGE_H * (self.height / CLASSIC_WINDOW_HEIGHT))
+
         self.__navigation_panel = ctk.CTkFrame(master=self)
         self.__main_menu_button = ctk.CTkButton(
             master=navigation_panel,
@@ -59,7 +62,8 @@ class Application(ctk.CTk):
             width=buttons_w,
             height=buttons_h,
             corner_radius=0,
-            command=lambda: self.change_form(self.__main_menu_form)
+            command=lambda: self.change_form(self.__main_menu_form),
+            image=ctk.CTkImage(light_image=Image.open("images/logo.png"), size=(button_image_w, button_image_h))
         )
 
         self.__nomenclature_button = ctk.CTkButton(

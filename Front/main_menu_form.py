@@ -4,6 +4,9 @@ import mysql.connector.errors
 from Front.global_const import *
 from Front.settings_form import SettingsForm
 from Front.dialog_window import InformationDialog
+from os import listdir
+from PIL import Image
+
 
 
 
@@ -49,13 +52,14 @@ class MainMenuForm(ctk.CTkFrame):
 
         self.__info_label_frame.grid(row=1, column=0, sticky="wn", padx=x_padding, pady=y_padding)
 
-        self.__company_logo_canvas = ctk.CTkCanvas(
+        self.__logo_image_size = window_w // 2 - 100
+        self.__company_logo_label = ctk.CTkLabel(
             master=self,
-            background="black",
-            width=window_w // 2 - 100,
-            height=window_h // 3 * 2 - 100
+            width=self.__logo_image_size,
+            height=self.__logo_image_size,
+            text=""
         )
-        self.__company_logo_canvas.grid(row=1, column=1, sticky="e", padx=x_padding, pady=y_padding)
+        self.__company_logo_label.grid(row=1, column=1, sticky="e", padx=x_padding, pady=y_padding)
 
         self.__settings_form = SettingsForm(master, window_w, window_h)
         self.__settings_button = ctk.CTkButton(
@@ -75,6 +79,7 @@ class MainMenuForm(ctk.CTkFrame):
             width=window_w // 4,
             height=window_h // 20,
             font=("Arial", font_size),
+            command=self.__change_company_logo
         )
 
         self.__change_logo_button.grid(row=4, column=1, sticky="e", padx=x_padding, pady=y_padding)
@@ -106,3 +111,27 @@ class MainMenuForm(ctk.CTkFrame):
         self.__company_name_label.configure(text=organization_name_label_text)
         self.__month_sales_label.configure(text=month_sales_count)
         self.__month_purchases_label.configure(text=month_purchases_count)
+        self.__load_company_logo()
+
+    def __load_company_logo(self):
+        logo_file_name = "images/logo.png"
+        for file_name in listdir("images"):
+            if "company_logo" in file_name:
+                logo_file_name = f"images/{file_name}"
+                break
+        company_logo_image = ctk.CTkImage(light_image=Image.open(logo_file_name), size=(self.__logo_image_size, self.__logo_image_size))
+        self.__company_logo_label.configure(image=company_logo_image)
+
+    def __change_company_logo(self):
+        try:
+            back.get_company_logo()
+        except TypeError:
+            InformationDialog(
+                main=self,
+                tittle="Некорректный формат файла!",
+                information="Допустимые форматы: png, jpg, bmp."
+            )
+        self.__load_company_logo()
+
+
+

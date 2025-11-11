@@ -1,5 +1,8 @@
 from Back.database_connector import get_connector
 from datetime import datetime
+from tkinter.filedialog import askopenfilename
+from shutil import copy
+from os import remove, listdir
 import json
 
 
@@ -41,3 +44,23 @@ def get_month_purchases_sales_count():
 
     connector.close()
     return purchases_count, sales_count
+
+
+def get_company_logo():
+    file_path = askopenfilename()
+    if file_path == "":
+        return 0
+
+    file_extension = file_path[file_path.rindex('.') + 1:] if "." in file_path else ""
+
+    if file_extension not in {"bmp", "png", "jpg"}:
+        raise TypeError("Incorrect logo extension")
+
+    for file_name in listdir("images"):
+        if "company_logo" in file_name:
+            remove(f"images/{file_name}")
+    copy(file_path, f"images/company_logo.{file_extension}")
+
+
+
+
