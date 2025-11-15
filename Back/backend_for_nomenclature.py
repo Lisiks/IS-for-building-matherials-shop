@@ -56,7 +56,7 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     connector.close()
 
 
-def update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit):
+def update_product(old_article, old_buy_price, old_sel_price, article, name, buy_price, sel_price, prod_type, prod_unit):
     if not article_validation(article):
         raise TypeError("Incorrect length")
 
@@ -94,6 +94,16 @@ def update_product(old_article, article, name, buy_price, sel_price, prod_type, 
     ProductTypes_ProductType = %s, MeasurmentUnits_MeasurmentUnitsName = %s
     WHERE ProductArticle = %s;"""
     cursor.execute(update_product_query, (article, name, buy_price, sel_price, prod_type, prod_unit, old_article))
+
+    if old_buy_price != float_buy_price:
+        changing_buying_price_query = """INSERT INTO ProductsBuyingPriceChanges(Products_ProductArticle, OldPrice)
+        VALUES(%s, %s);"""
+        cursor.execute(changing_buying_price_query, (article, old_buy_price))
+
+    if old_sel_price != float_sel_price:
+        changing_selling_price_query = """INSERT INTO ProductsSellingPriceChanges(Products_ProductArticle, OldPrice)
+        VALUES(%s, %s);"""
+        cursor.execute(changing_selling_price_query, (article, old_sel_price))
 
     connector.commit()
     connector.close()

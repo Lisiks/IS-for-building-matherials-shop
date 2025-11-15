@@ -431,7 +431,7 @@ class NomenclatureForm(ctk.CTkFrame):
                 "Ни одна строка таблицы не выбрана для изменения!")
             return 0
         selected_row = selected_table_row[0]
-        old_article, *_, count = self.__nomenclature_table.get_row_data(r=selected_row)
+        old_article, _, old_buy_price, old_sel_price, *_, count = self.__nomenclature_table.get_row_data(r=selected_row)
         dialog = ModalDialog(
             self.master,
             "Подтвердите действие.",
@@ -446,7 +446,7 @@ class NomenclatureForm(ctk.CTkFrame):
             prod_type = self.__type_combobox.get()
             prod_unit = self.__unit_combobox.get()
             try:
-                back.update_product(old_article, article, name, buy_price, sel_price, prod_type, prod_unit)
+                back.update_product(old_article, old_buy_price, old_sel_price, article, name, buy_price, sel_price, prod_type, prod_unit)
                 updated_record = [article, name, buy_price, sel_price, prod_type, prod_unit, count]
                 self.__nomenclature_table.delete_row(rows=selected_row)
                 self.__nomenclature_table.insert_row(idx=selected_row, row=updated_record, redraw=True)
