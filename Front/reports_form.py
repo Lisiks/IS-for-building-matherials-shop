@@ -1,5 +1,8 @@
 import customtkinter as ctk
+import mysql.connector.errors
 from Front.global_const import *
+from Back.query_for_comboboxes_values import get_products_articles
+from Front.dialog_window import InformationDialog
 
 
 class ReportsForm(ctk.CTkFrame):
@@ -10,8 +13,8 @@ class ReportsForm(ctk.CTkFrame):
         head_font_size = round(CLASSIC_HEAD_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
         font_size = round(CLASSIC_WIDGETS_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
 
-        x_padding = round(2 * (window_w / CLASSIC_WINDOW_WIDTH))
-        y_padding = round(6 * (window_h / CLASSIC_WINDOW_HEIGHT))
+        x_padding = 3
+        y_padding = 6
 
         ctk.CTkLabel(
             master=self,
@@ -30,7 +33,8 @@ class ReportsForm(ctk.CTkFrame):
             width=window_w // 3,
             height=window_h // 20,
             font=("Arial", font_size),
-            values=["Месяц", "Год", "Все время"]
+            values=["Месяц", "Год", "Все время"],
+            state="readonly",
         )
 
         self.__period_entry.grid(row=2, column=0, padx=x_padding, pady=y_padding)
@@ -58,7 +62,8 @@ class ReportsForm(ctk.CTkFrame):
             width=window_w // 3,
             height=window_h // 20,
             font=("Arial", font_size),
-            values=["По товарам", "По типу товаров", "По клиентам"]
+            values=["По товарам", "По типу товаров", "По клиентам"],
+            state="readonly",
         )
 
         self.__seller_type_entry.grid(row=5, column=0, padx=x_padding, pady=y_padding)
@@ -79,7 +84,8 @@ class ReportsForm(ctk.CTkFrame):
             width=window_w // 3,
             height=window_h // 20,
             font=("Arial", font_size),
-            values=["По товарам", "По типу товаров", "По поставщикам"]
+            values=["По товарам", "По типу товаров", "По поставщикам"],
+            state="readonly",
         )
 
         self.__purchasing_type_entry.grid(row=5, column=1, padx=x_padding, pady=y_padding)
@@ -100,11 +106,12 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size)
         ).grid(row=7, column=0, sticky="w", padx=x_padding, pady=y_padding)
 
-        self.__article_for_purchasing_price_report = ctk.CTkEntry(
+        self.__article_for_purchasing_price_report = ctk.CTkComboBox(
             master=self,
             width=window_w // 3,
             height=window_h // 20,
             font=("Arial", font_size),
+            command=self.__purchases_article_cb_format
         )
 
         self.__article_for_purchasing_price_report.grid(row=8, column=0, padx=x_padding, pady=y_padding)
@@ -125,11 +132,12 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size)
         ).grid(row=7, column=1, sticky="w", padx=x_padding, pady=y_padding)
 
-        self.__article_for_selling_price_report = ctk.CTkEntry(
+        self.__article_for_selling_price_report = ctk.CTkComboBox(
             master=self,
             width=window_w // 3,
             height=window_h // 20,
             font=("Arial", font_size),
+            command=self.__selling_article_cb_format
         )
 
         self.__article_for_selling_price_report.grid(row=8, column=1, padx=x_padding, pady=y_padding)
@@ -143,8 +151,32 @@ class ReportsForm(ctk.CTkFrame):
         )
 
         self.__selling_price_report_create_button.grid(row=9, column=1, padx=x_padding, pady=y_padding)
+        self.bind("<Map>", self.__on_form_show_actions)
 
+    def __on_form_show_actions(self, _):
+        self.__period_entry.set("")
+        self.__seller_type_entry.set("")
+        self.__purchasing_type_entry.set("")
 
+        self.__article_for_selling_price_report.set("")
+        self.__article_for_purchasing_price_report.set("")
+
+        articles = list()
+        try:
+            articles = get_products_articles()
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+        self.__article_for_purchasing_price_report.configure(values=articles)
+        self.__article_for_selling_price_report.configure(values=articles)
+
+    def __selling_article_cb_format(self, cb_choice):
+        self.__article_for_selling_price_report.set(cb_choice[:cb_choice.index(" ")])
+
+    def __purchases_article_cb_format(self, cb_choice):
+        self.__article_for_purchasing_price_report.set(cb_choice[:cb_choice.index(" ")])
 
 
 
