@@ -78,7 +78,7 @@ def make_type_purchases_reposts(period) -> list:
 
     for type_record in types_records:
         name, *_ = type_record
-        types_hash[name] = Type(name, 0, 0.0)
+        types_hash[name] = Type(name, 0, 0.0, 0, 0.0, 0.0)
 
     for change_record in product_buying_price_data:
         date_of_change, old_price, article = change_record

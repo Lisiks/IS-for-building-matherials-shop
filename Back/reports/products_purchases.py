@@ -78,8 +78,8 @@ def make_product_purchases_reposts(period) -> list:
         article, date, count = purchase_record
         cost = data_binary_search(date, product_hash[article].buying_cost_list)
 
-        product_hash[article].purchases_count += count
-        product_hash[article].purchases_summ += count * float(cost)
+        product_hash[article].purchase_count += count
+        product_hash[article].purchase_summ += count * float(cost)
 
     return list(product_hash.values())
 
