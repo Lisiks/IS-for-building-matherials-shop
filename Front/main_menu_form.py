@@ -21,6 +21,8 @@ class MainMenuForm(ctk.CTkFrame):
         x_padding = 3
         y_padding = 6
 
+        self.__application_window = master
+
         ctk.CTkLabel(
             master=self,
             text="Главная",
@@ -68,7 +70,7 @@ class MainMenuForm(ctk.CTkFrame):
             width=window_w // 4,
             height=window_h // 20,
             font=("Arial", font_size),
-            command=lambda: master.change_form(self.__settings_form)
+            command=lambda: self.__application_window.change_form(self.__settings_form)
         )
 
         self.__settings_button.grid(row=4, column=0, sticky="w", padx=x_padding, pady=y_padding)

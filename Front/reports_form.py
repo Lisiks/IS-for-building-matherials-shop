@@ -1,14 +1,19 @@
 import customtkinter as ctk
 import mysql.connector.errors
+from Front.report_result_form import RepostResultForm
 from Front.global_const import *
 from Back.query_for_comboboxes_values import get_products_articles
 from Front.dialog_window import InformationDialog
+from Back.reports import products_sales, products_purchases, types_sales, types_purchases, clients_sales, suppliers_purchases
+import threading
 
 
 class ReportsForm(ctk.CTkFrame):
     def __init__(self, master, window_w, window_h):
         super().__init__(master)
         self.configure(fg_color=master.cget("fg_color"))
+
+        self.__application_window = master
 
         head_font_size = round(CLASSIC_HEAD_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
         font_size = round(CLASSIC_WIDGETS_FONT_SIZE * (window_w / CLASSIC_WINDOW_WIDTH))
@@ -74,6 +79,7 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
+            command=self.__make_sale_report
         )
 
         self._sellers_report_create_button.grid(row=6, column=0, padx=x_padding, pady=y_padding)
@@ -96,6 +102,7 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
+            command=self.__make_purchase_report
         )
 
         self._purchasing_report_create_button.grid(row=6, column=1, padx=x_padding, pady=y_padding)
@@ -151,7 +158,20 @@ class ReportsForm(ctk.CTkFrame):
         )
 
         self.__selling_price_report_create_button.grid(row=9, column=1, padx=x_padding, pady=y_padding)
+
+        self.__button_for_show_report_result = ctk.CTkButton(
+            master=self,
+            text="Последний сформированный отчет",
+            font=("Arial", font_size),
+            width=window_w // 3,
+            height=window_h // 20,
+            command=self.__open_current_result_form
+        )
+        self.__button_for_show_report_result.grid(row=10, column=0, padx=x_padding, pady=y_padding)
+
         self.bind("<Map>", self.__on_form_show_actions)
+
+        self.__report_result_form = None
 
     def __on_form_show_actions(self, _):
         self.__period_entry.set("")
@@ -177,6 +197,203 @@ class ReportsForm(ctk.CTkFrame):
 
     def __purchases_article_cb_format(self, cb_choice):
         self.__article_for_purchasing_price_report.set(cb_choice[:cb_choice.index(" ")])
+
+    def __open_current_result_form(self):
+        if self.__report_result_form is None:
+            InformationDialog(
+                self,
+                "Ошибка",
+                "За текущий сеанс не было сформировано\nни одного отчета!")
+        else:
+            self.__application_window.change_form(self.__report_result_form)
+
+    def __make_product_purchase_report(self, period):
+        try:
+            report_data = products_purchases.make_product_purchases_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_type_purchase_report(self, period):
+        try:
+            report_data = types_purchases.make_type_purchases_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_supplier_purchase_report(self, period):
+        try:
+            report_data = suppliers_purchases.make_suppliers_purchases_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_purchase_report(self):
+        thread_names = [thr.name for thr in threading.enumerate()]
+        if "report_thread" in thread_names:
+            InformationDialog(
+                self,
+                "Внимание",
+                "Формирование данного отчета невозможно,\nт.к в данный момент идет формирование другого отчета!")
+            return 0
+
+        period = self.__period_entry.get()
+        if period == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать период!")
+            return 0
+
+        report_type = self.__purchasing_type_entry.get()
+        if report_type == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать его тип!")
+            return 0
+
+        if report_type == "По товарам":
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по закупкам (по товарам) за {period.lower()}",
+                table_headers=["Артикул", "Наименование", "Объем закупки", "Стоимость закупки"])
+
+            report_thread = threading.Thread(name="report_thread",target=self.__make_product_purchase_report, args=(period,), daemon=True)
+        elif report_type == "По типу товаров":
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по закупкам (по типу) за {period.lower()}",
+                table_headers=["Тип", "Объем закупки", "Стоимость закупки"])
+            report_thread = threading.Thread(name="report_thread", target=self.__make_type_purchase_report,args=(period,), daemon=True)
+
+        else:
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по закупкам (по поставщикам) за {period.lower()}",
+                table_headers=["ИНН", "Наименование", "Объем закупки", "Стоимость закупки"])
+            report_thread = threading.Thread(name="report_thread", target=self.__make_supplier_purchase_report,args=(period,), daemon=True)
+
+        self.__application_window.change_form(self.__report_result_form)
+
+        InformationDialog(
+            self.master,
+            "Создание отчета",
+            "Процесс создания запущен, дождитесь его окончания,\nлибо перейдите в 'Последний сформированный отчет'\nраздела 'Отчеты' позже.")
+
+        report_thread.start()
+
+    def __make_product_sales_report(self, period):
+        try:
+            report_data = products_sales.make_product_sales_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_type_sales_report(self, period):
+        try:
+            report_data = types_sales.make_type_sales_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_client_sales_report(self, period):
+        try:
+            report_data = clients_sales.make_client_sales_reposts(period)
+            self.__report_result_form.load_report_data(report_data)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+
+    def __make_sale_report(self):
+        thread_names = [thr.name for thr in threading.enumerate()]
+        if "report_thread" in thread_names:
+            InformationDialog(
+                self,
+                "Внимание",
+                "Формирование данного отчета невозможно,\nт.к в данный момент идет формирование другого отчета!")
+            return 0
+
+        period = self.__period_entry.get()
+        if period == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать период!")
+            return 0
+
+        report_type = self.__seller_type_entry.get()
+        if report_type == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать его тип!")
+            return 0
+
+        if report_type == "По товарам":
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по продажам (по товарам) за {period.lower()}",
+                table_headers=["Артикул", "Наименование", "Объем продажи", "Выручка", "Прибыль"])
+            report_thread = threading.Thread(name="report_thread",target=self.__make_product_sales_report, args=(period,), daemon=True)
+
+        elif report_type == "По типу товаров":
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по закупкам (по типу) за {period.lower()}",
+                table_headers=["Тип", "Объем продажи", "Выручка", "Прибыль"])
+            report_thread = threading.Thread(name="report_thread", target=self.__make_type_sales_report, args=(period,), daemon=True)
+
+        else:
+            self.__report_result_form = RepostResultForm(
+                master=self.master,
+                window_w=self.master.winfo_screenwidth(),
+                window_h=self.master.winfo_screenheight(),
+                report_header=f"Отчет по закупкам (по поставщикам) за {period.lower()}",
+                table_headers=["№ дисконтной карты", "Клиент", "Объем продажи", "Выручка", "Прибыль"])
+            report_thread = threading.Thread(name="report_thread", target=self.__make_client_sales_report,args=(period,), daemon=True)
+
+        self.__application_window.change_form(self.__report_result_form)
+
+        InformationDialog(
+            self.master,
+            "Создание отчета",
+            "Процесс создания запущен, дождитесь его окончания,\nлибо перейдите в 'Последний сформированный отчет'\nраздела 'Отчеты' позже.")
+
+        report_thread.start()
+
+
+
+
+
+
 
 
 
