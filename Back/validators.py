@@ -7,7 +7,7 @@ def ogrn_validation(ogrn_number) -> bool:
 
 
 def email_validation(email) -> bool:
-    return (5 <= len(email) <= 30) and (email.count("@") == 1)
+    return (5 <= len(email) <= 30) and (email.purchase_count("@") == 1)
 
 
 def telephone_validation(telephone_number) -> bool:

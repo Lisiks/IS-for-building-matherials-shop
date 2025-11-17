@@ -31,7 +31,7 @@ def set_organization_data(org_name, org_inn, org_ogrn, org_telephone, org_addres
     org_data["organization_telephone"] = org_telephone
     org_data["organization_address"] = org_address
 
-    organization_data_file_path = abspath("../JSON/organization_data.json")
+    organization_data_file_path = abspath("JSON/organization_data.json")
     with open(organization_data_file_path, "w", encoding="utf-8") as org_data_file:
         json.dump(json.dumps(org_data, indent=4), org_data_file)
 
