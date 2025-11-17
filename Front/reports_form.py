@@ -4,7 +4,9 @@ from Front.report_result_form import RepostResultForm
 from Front.global_const import *
 from Back.query_for_comboboxes_values import get_products_articles
 from Front.dialog_window import InformationDialog
-from Back.reports import products_sales, products_purchases, types_sales, types_purchases, clients_sales, suppliers_purchases
+from Back.Reports import (products_sales, products_purchases, types_sales, product_buying_price_graphics,
+                          types_purchases, clients_sales, suppliers_purchases, product_selling_price_graphics)
+from matplotlib import pyplot
 import threading
 
 
@@ -84,7 +86,6 @@ class ReportsForm(ctk.CTkFrame):
 
         self._sellers_report_create_button.grid(row=6, column=0, padx=x_padding, pady=y_padding)
 
-
         self.__purchasing_type_entry = ctk.CTkComboBox(
             master=self,
             width=window_w // 3,
@@ -107,11 +108,21 @@ class ReportsForm(ctk.CTkFrame):
 
         self._purchasing_report_create_button.grid(row=6, column=1, padx=x_padding, pady=y_padding)
 
+        self.__button_for_show_report_result = ctk.CTkButton(
+            master=self,
+            text="Последний сформированный отчет",
+            font=("Arial", font_size),
+            width=window_w // 3 * 2,
+            height=window_h // 20,
+            command=self.__open_current_result_form
+        )
+        self.__button_for_show_report_result.grid(row=7, column=0, columnspan=2, padx=x_padding, pady=y_padding)
+
         ctk.CTkLabel(
             master=self,
             text="Динамика цен закупки",
             font=("Arial", font_size)
-        ).grid(row=7, column=0, sticky="w", padx=x_padding, pady=y_padding)
+        ).grid(row=8, column=0, sticky="w", padx=x_padding, pady=y_padding)
 
         self.__article_for_purchasing_price_report = ctk.CTkComboBox(
             master=self,
@@ -121,7 +132,7 @@ class ReportsForm(ctk.CTkFrame):
             command=self.__purchases_article_cb_format
         )
 
-        self.__article_for_purchasing_price_report.grid(row=8, column=0, padx=x_padding, pady=y_padding)
+        self.__article_for_purchasing_price_report.grid(row=9, column=0, padx=x_padding, pady=y_padding)
 
         self.__purchasing_price_report_create_button = ctk.CTkButton(
             master=self,
@@ -129,15 +140,16 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
+            command=self.__make_product_buying_price_report
         )
 
-        self.__purchasing_price_report_create_button.grid(row=9, column=0, padx=x_padding, pady=y_padding)
+        self.__purchasing_price_report_create_button.grid(row=10, column=0, padx=x_padding, pady=y_padding)
 
         ctk.CTkLabel(
             master=self,
             text="Динамика цен продажи",
             font=("Arial", font_size)
-        ).grid(row=7, column=1, sticky="w", padx=x_padding, pady=y_padding)
+        ).grid(row=8, column=1, sticky="w", padx=x_padding, pady=y_padding)
 
         self.__article_for_selling_price_report = ctk.CTkComboBox(
             master=self,
@@ -147,7 +159,7 @@ class ReportsForm(ctk.CTkFrame):
             command=self.__selling_article_cb_format
         )
 
-        self.__article_for_selling_price_report.grid(row=8, column=1, padx=x_padding, pady=y_padding)
+        self.__article_for_selling_price_report.grid(row=9, column=1, padx=x_padding, pady=y_padding)
 
         self.__selling_price_report_create_button = ctk.CTkButton(
             master=self,
@@ -155,19 +167,12 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
+            command=self.__make_product_selling_price_report
         )
 
-        self.__selling_price_report_create_button.grid(row=9, column=1, padx=x_padding, pady=y_padding)
+        self.__selling_price_report_create_button.grid(row=10, column=1, padx=x_padding, pady=y_padding)
 
-        self.__button_for_show_report_result = ctk.CTkButton(
-            master=self,
-            text="Последний сформированный отчет",
-            font=("Arial", font_size),
-            width=window_w // 3,
-            height=window_h // 20,
-            command=self.__open_current_result_form
-        )
-        self.__button_for_show_report_result.grid(row=10, column=0, padx=x_padding, pady=y_padding)
+
 
         self.bind("<Map>", self.__on_form_show_actions)
 
@@ -388,6 +393,122 @@ class ReportsForm(ctk.CTkFrame):
             "Процесс создания запущен, дождитесь его окончания,\nлибо перейдите в 'Последний сформированный отчет'\nраздела 'Отчеты' позже.")
 
         report_thread.start()
+
+    def __make_product_buying_price_report(self):
+        period = self.__period_entry.get()
+        if period == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать период!")
+            return 0
+
+        article = self.__article_for_purchasing_price_report.get()
+        if article == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать артикул товара!")
+            return 0
+
+        try:
+            date_list, price_list = product_buying_price_graphics.make_product_buying_price_report(period, article)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+            return 0
+        except TypeError:
+            InformationDialog(
+                self.master,
+                "Ошибка ввода!",
+                "Товар с данным артикулом отсутствует в БД!")
+            return 0
+
+        if len(date_list) == 0:
+            InformationDialog(
+                self.master,
+                "Результат отчета!",
+                "За указанный период не было совершено\nни одного изменения цены данного товара.")
+            return 0
+
+        pyplot.style.use("dark_background")
+        pyplot.figure(
+            num=f"Динамика цены закупки товара '{article}' за {period.lower()}",
+            figsize=(self.master.winfo_screenwidth() // 100, self.master.winfo_screenheight() // 100)
+        )
+
+        pyplot.title(f"Динамика цены закупки товара '{article}' за {period.lower()}")
+        pyplot.xlabel("Дата изменения")
+        pyplot.ylabel("Цена товара")
+
+        pyplot.plot(date_list, price_list, "w-o")
+
+        if len(date_list) > 15:
+            pyplot.tick_params(axis='x', labelbottom=False)
+
+        pyplot.show()
+
+    def __make_product_selling_price_report(self):
+        period = self.__period_entry.get()
+        if period == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать период!")
+            return 0
+
+        article = self.__article_for_selling_price_report.get()
+        if article == "":
+            InformationDialog(
+                self,
+                "Ошибка ввода",
+                "Для формирования отчета необходимо указать артикул товара!")
+            return 0
+
+        try:
+            date_list, price_list = product_selling_price_graphics.make_product_selling_price_report(period, article)
+        except mysql.connector.errors.InterfaceError:
+            InformationDialog(
+                self.master,
+                "Ошибка подключения к БД!",
+                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
+            return 0
+        except TypeError:
+            InformationDialog(
+                self.master,
+                "Ошибка ввода!",
+                "Товар с данным артикулом отсутствует в БД!")
+            return 0
+
+        if len(date_list) == 0:
+            InformationDialog(
+                self.master,
+                "Результат отчета!",
+                "За указанный период не было совершено\nни одного изменения цены данного товара.")
+            return 0
+
+        pyplot.style.use("dark_background")
+        pyplot.figure(
+            num=f"Динамика цены продажи товара '{article}' за {period.lower()}",
+            figsize=(self.master.winfo_screenwidth() // 100, self.master.winfo_screenheight() // 100)
+        )
+
+        pyplot.title(f"Динамика цены продажи товара '{article}' за {period.lower()}")
+        pyplot.xlabel("Дата изменения")
+        pyplot.ylabel("Цена товара")
+
+        pyplot.plot(date_list, price_list, "w-o")
+
+        if len(date_list) > 15:
+            pyplot.tick_params(axis='x', labelbottom=False)
+
+        pyplot.show()
+
+
+
+
 
 
 

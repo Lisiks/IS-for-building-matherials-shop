@@ -30,7 +30,7 @@ def make_product_buying_price_report(period, article):
     cursor.execute(last_buying_price_query, (article, end_date))
     last_period_change = cursor.fetchall()
 
-    date_list = [change[0] for change in buying_price_data]
+    date_list = [str(change[0]).replace(" ", "\n") for change in buying_price_data]
     price_list = [float(change[1]) for change in buying_price_data[1:]]
 
     if len(last_period_change) == 0:
