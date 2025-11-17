@@ -32,7 +32,7 @@ def make_suppliers_purchases_reposts(period) -> list:
         )
 
         end_date = datetime.strptime(
-            f"{end_year}01-01 00:00:00",
+            f"{end_year}-01-01 00:00:00",
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -90,4 +90,9 @@ def make_suppliers_purchases_reposts(period) -> list:
         suppliers_hash[inn].purchases_count += count
         suppliers_hash[inn].purchases_summ += float(cost) * count
 
-    return list(suppliers_hash.values())
+    return list(
+        map(
+            lambda current_supplier: (current_supplier.inn, current_supplier.name, current_supplier.purchases_count, round(current_supplier.purchases_summ, 2)),
+            filter(lambda current_supplier: current_supplier.purchases_count > 0, suppliers_hash.values())
+        )
+    )

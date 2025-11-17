@@ -32,7 +32,7 @@ def make_type_purchases_reposts(period) -> list:
         )
 
         end_date = datetime.strptime(
-            f"{end_year}01-01 00:00:00",
+            f"{end_year}-01-01 00:00:00",
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -91,4 +91,9 @@ def make_type_purchases_reposts(period) -> list:
         types_hash[product_hash[article].product_type].purchases_count += count
         types_hash[product_hash[article].product_type].purchases_summ += float(cost) * count
 
-    return list(types_hash.values())
+    return list(
+        map(
+            lambda current_type: (current_type.name, current_type.purchases_count, round(current_type.purchases_summ, 2)),
+            filter(lambda current_type: current_type.purchases_count > 0, types_hash.values())
+        )
+    )

@@ -32,7 +32,7 @@ def make_client_sales_reposts(period) -> list:
         )
 
         end_date = datetime.strptime(
-            f"{end_year}01-01 00:00:00",
+            f"{end_year}-01-01 00:00:00",
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -114,4 +114,9 @@ def make_client_sales_reposts(period) -> list:
         client_hash[client_card].sales_summ += sale_revenue
         client_hash[client_card].profit += profit
 
-    return list(client_hash.values())
+    return list(
+        map(
+            lambda current_client: (current_client.card_number, current_client.full_name, current_client.sales_count, round(current_client.sales_summ, 2), round(current_client.profit, 2)),
+            filter(lambda current_client: current_client.sales_count > 0, client_hash.values())
+        )
+    )

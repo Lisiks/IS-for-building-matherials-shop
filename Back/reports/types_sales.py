@@ -32,7 +32,7 @@ def make_type_sales_reposts(period) -> list:
         )
 
         end_date = datetime.strptime(
-            f"{end_year}01-01 00:00:00",
+            f"{end_year}-01-01 00:00:00",
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -113,4 +113,9 @@ def make_type_sales_reposts(period) -> list:
         type_hash[product_hash[article].product_type].sales_summ += sale_revenue
         type_hash[product_hash[article].product_type].profit += profit
 
-    return list(type_hash.values())
+    return list(
+        map(
+            lambda current_type: (current_type.name, current_type.sales_count, round(current_type.sales_summ, 2), round(current_type.profit, 2)),
+            filter(lambda current_type: current_type.sales_count > 0, type_hash.values())
+        )
+    )
