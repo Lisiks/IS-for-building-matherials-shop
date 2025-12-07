@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 
 @dataclass
@@ -15,7 +14,7 @@ class Product:
     buying_cost_list: list
     selling_cost_list: list
 
-    def __init__(self, article, name, product_type=None, actual_buying_price=None, actual_selling_price=None):
+    def __init__(self, article, name, product_type=None):
         self.article = article
         self.name = name
         self.product_type = product_type
@@ -25,8 +24,9 @@ class Product:
         self.sales_summ = 0.0
         self.profit = 0.0
 
-        self.buying_cost_list = [[datetime.now().replace(microsecond=0), actual_buying_price]]
-        self.selling_cost_list = [[datetime.now().replace(microsecond=0), actual_selling_price]]
+        self.buying_cost_list = []
+        self.selling_cost_list = []
+
 
 
 @dataclass

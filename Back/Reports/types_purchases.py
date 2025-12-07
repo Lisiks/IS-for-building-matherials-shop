@@ -15,14 +15,13 @@ def make_type_purchases_reposts(period) -> list:
     cursor.execute(purchases_query, (start_date, end_date))
     purchases_records = cursor.fetchall()
 
-    product_query = """SELECT Products.ProductArticle, Products.ProductName, 
-    ProductTypes_ProductType, Products.BuyingPrice FROM Products;"""
+    product_query = """SELECT Products.ProductArticle, Products.ProductName, ProductTypes_ProductType FROM Products;"""
     cursor.execute(product_query)
     product_data = cursor.fetchall()
 
     product_buying_price_story_query = """SELECT * FROM ProductsBuyingPriceChanges 
     WHERE DateOfChange >= %s AND DateOfChange < %s
-    ORDER BY ProductsBuyingPriceChanges.DateOfChange DESC;"""
+    ORDER BY ProductsBuyingPriceChanges.DateOfChange ASC;"""
     cursor.execute(product_buying_price_story_query, (start_date, end_date))
     product_buying_price_data = cursor.fetchall()
 
@@ -35,8 +34,8 @@ def make_type_purchases_reposts(period) -> list:
     product_hash = dict()
     types_hash = dict()
     for product_record in product_data:
-        article, name, prod_type, actual_buying_price = product_record
-        product = Product(article, name, actual_buying_price=actual_buying_price, product_type=prod_type)
+        article, name, prod_type = product_record
+        product = Product(article, name, product_type=prod_type)
         product_hash[article] = product
 
     for type_record in types_records:
@@ -44,8 +43,8 @@ def make_type_purchases_reposts(period) -> list:
         types_hash[name] = Type(name, 0, 0.0, 0, 0.0, 0.0)
 
     for change_record in product_buying_price_data:
-        date_of_change, old_price, article = change_record
-        product_hash[article].buying_cost_list.append([date_of_change, old_price])
+        date_of_change, price, article = change_record
+        product_hash[article].buying_cost_list.append([date_of_change, price])
 
     for purchase_record in purchases_records:
         article, date, count = purchase_record

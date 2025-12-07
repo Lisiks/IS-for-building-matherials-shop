@@ -18,8 +18,8 @@ def make_type_sales_reposts(period) -> list:
     cursor.execute(sales_query, (start_date, end_date))
     sales_records = cursor.fetchall()
 
-    product_query = """SELECT Products.ProductArticle, Products.ProductName, ProductTypes_ProductType,
-    BuyingPrice,  SellingPrice FROM Products;"""
+    product_query = """SELECT Products.ProductArticle, Products.ProductName, ProductTypes_ProductType
+    FROM Products;"""
     cursor.execute(product_query)
     product_data = cursor.fetchall()
 
@@ -29,13 +29,13 @@ def make_type_sales_reposts(period) -> list:
 
     product_buying_price_story_query = """SELECT * FROM ProductsBuyingPriceChanges 
     WHERE DateOfChange >= %s AND DateOfChange < %s
-    ORDER BY ProductsBuyingPriceChanges.DateOfChange DESC;"""
+    ORDER BY ProductsBuyingPriceChanges.DateOfChange ASC;"""
     cursor.execute(product_buying_price_story_query, (start_date, end_date))
     product_buying_price_data = cursor.fetchall()
 
     product_selling_price_query = """SELECT * FROM ProductsSellingPriceChanges 
     WHERE DateOfChange >= %s AND DateOfChange < %s
-    ORDER BY ProductsSellingPriceChanges.DateOfChange DESC;"""
+    ORDER BY ProductsSellingPriceChanges.DateOfChange ASC;"""
     cursor.execute(product_selling_price_query, (start_date, end_date))
     product_selling_price_data = cursor.fetchall()
     connector.close()
@@ -43,8 +43,8 @@ def make_type_sales_reposts(period) -> list:
     product_hash = dict()
     type_hash = dict()
     for product_record in product_data:
-        article, name, prod_type, buy_price, sel_price = product_record
-        new_product = Product(article, name, product_type=prod_type, actual_buying_price=buy_price, actual_selling_price=sel_price)
+        article, name, prod_type = product_record
+        new_product = Product(article, name, product_type=prod_type)
         product_hash[article] = new_product
 
     for type_record in type_data:
@@ -53,12 +53,12 @@ def make_type_sales_reposts(period) -> list:
         type_hash[name] = new_type
 
     for change_buy_price_record in product_buying_price_data:
-        date_of_change, old_price, article = change_buy_price_record
-        product_hash[article].buying_cost_list.append([date_of_change, old_price])
+        date_of_change, buy_price, article = change_buy_price_record
+        product_hash[article].buying_cost_list.append([date_of_change, buy_price])
 
     for change_sel_price_record in product_selling_price_data:
-        date_of_change, old_price, article = change_sel_price_record
-        product_hash[article].selling_cost_list.append([date_of_change, old_price])
+        date_of_change, sel_price, article = change_sel_price_record
+        product_hash[article].selling_cost_list.append([date_of_change, sel_price])
 
     for sal_record in sales_records:
         date, article, count, discount = sal_record

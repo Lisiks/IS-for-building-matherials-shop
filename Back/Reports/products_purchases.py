@@ -1,7 +1,6 @@
 from Back.database_connector import get_connector
 from Back.Reports.date_binary_search import data_binary_search
 from Back.Reports.calculate_date import calculate_start_end_date_from_period
-from datetime import datetime
 from Back.Reports.data_clasess import Product
 
 
@@ -16,13 +15,13 @@ def make_product_purchases_reposts(period) -> list:
     cursor.execute(purchases_query, (start_date, end_date))
     purchase_records = cursor.fetchall()
 
-    product_query = """SELECT Products.ProductArticle, Products.ProductName, Products.BuyingPrice FROM Products;"""
+    product_query = """SELECT Products.ProductArticle, Products.ProductName FROM Products;"""
     cursor.execute(product_query)
     product_data = cursor.fetchall()
 
     product_buying_price_story_query = """SELECT * FROM ProductsBuyingPriceChanges 
     WHERE DateOfChange >= %s AND DateOfChange < %s
-    ORDER BY ProductsBuyingPriceChanges.DateOfChange DESC;"""
+    ORDER BY ProductsBuyingPriceChanges.DateOfChange ASC;"""
     cursor.execute(product_buying_price_story_query, (start_date, end_date))
     product_buying_price_data = cursor.fetchall()
 
@@ -30,13 +29,13 @@ def make_product_purchases_reposts(period) -> list:
 
     product_hash = dict()
     for product_record in product_data:
-        article, name, actual_buying_price = product_record
-        product = Product(article, name, actual_buying_price=actual_buying_price)
+        article, name = product_record
+        product = Product(article, name)
         product_hash[article] = product
 
     for change_record in product_buying_price_data:
-        date_of_change, old_price, article = change_record
-        product_hash[article].buying_cost_list.append([date_of_change, old_price])
+        date_of_change, price, article = change_record
+        product_hash[article].buying_cost_list.append([date_of_change, price])
 
     for purchase_record in purchase_records:
         article, date, count = purchase_record
