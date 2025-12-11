@@ -25,8 +25,6 @@ def make_product_purchases_reposts(period) -> list:
     cursor.execute(product_buying_price_story_query, (start_date, end_date))
     product_buying_price_data = cursor.fetchall()
 
-    connector.close()
-
     product_hash = dict()
     for product_record in product_data:
         article, name = product_record

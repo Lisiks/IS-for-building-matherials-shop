@@ -52,7 +52,7 @@ def add_product_type(product_type):
     cursor.execute(add_query, (product_type,))
 
     connector.commit()
-    connector.close()
+
 
 
 def add_product_unit(product_unit):
@@ -70,7 +70,7 @@ def add_product_unit(product_unit):
     cursor.execute(add_query, (product_unit,))
 
     connector.commit()
-    connector.close()
+
 
 
 def del_product_type(product_type):
@@ -87,7 +87,7 @@ def del_product_type(product_type):
     cursor.execute(add_query, (product_type,))
 
     connector.commit()
-    connector.close()
+
 
 
 def del_product_unit(product_unit):
@@ -103,4 +103,3 @@ def del_product_unit(product_unit):
     cursor.execute(add_query, (product_unit,))
 
     connector.commit()
-    connector.close()

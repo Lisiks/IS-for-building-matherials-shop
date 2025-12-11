@@ -9,8 +9,6 @@ def get_nomenclature() -> list:
     selection_query = "SELECT * FROM Products"
     cursor.execute(selection_query)
 
-    connector.close()
-
     return cursor.fetchall()
 
 
@@ -61,7 +59,6 @@ def add_product(article, name, buy_price, sel_price, prod_type, prod_unit):
     cursor.execute(changing_selling_price_query, (article, sel_price))
 
     connector.commit()
-    connector.close()
 
 
 def update_product(old_article, old_buy_price, old_sel_price, article, name, buy_price, sel_price, prod_type, prod_unit):
@@ -103,18 +100,18 @@ def update_product(old_article, old_buy_price, old_sel_price, article, name, buy
     WHERE ProductArticle = %s;"""
     cursor.execute(update_product_query, (article, name, buy_price, sel_price, prod_type, prod_unit, old_article))
 
-    if old_buy_price != float_buy_price:
+    if float(old_buy_price) != float_buy_price:
         changing_buying_price_query = """INSERT INTO ProductsBuyingPriceChanges(Products_ProductArticle, NewPrice)
         VALUES(%s, %s);"""
         cursor.execute(changing_buying_price_query, (article, float_buy_price))
 
-    if old_sel_price != float_sel_price:
+    if float(old_sel_price) != float_sel_price:
         changing_selling_price_query = """INSERT INTO ProductsSellingPriceChanges(Products_ProductArticle, NewPrice)
         VALUES(%s, %s);"""
         cursor.execute(changing_selling_price_query, (article, float_sel_price))
 
     connector.commit()
-    connector.close()
+
 
 
 def del_product(article):
@@ -125,7 +122,7 @@ def del_product(article):
     cursor.execute(add_product_query, (article,))
 
     connector.commit()
-    connector.close()
+
 
 
 def get_finding_products(attribute) -> list:
@@ -162,6 +159,5 @@ def get_finding_products(attribute) -> list:
         WHERE ProductName LIKE %s OR ProductTypes_ProductType LIKE %s OR MeasurmentUnits_MeasurmentUnitsName LIKE %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute))
 
-    connector.close()
     return cursor.fetchall()
 

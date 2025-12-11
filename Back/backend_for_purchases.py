@@ -9,7 +9,6 @@ def get_purchases() -> list:
     selection_query = "SELECT * FROM Purchases;"
     cursor.execute(selection_query)
 
-    connector.close()
     return cursor.fetchall()
 
 
@@ -49,7 +48,6 @@ def add_purchase(date, suppliers_inn, document, product_article, product_count) 
     cursor.execute(update_product_count_query, (product_count, product_article))
     connector.commit()
 
-    connector.close()
     return new_record_id
 
 
@@ -60,7 +58,7 @@ def del_purchase(purchases_id):
     delete_purcahse_query = """DELETE FROM Purchases WHERE ID = %s"""
     cursor.execute(delete_purcahse_query, (purchases_id,))
     connector.commit()
-    connector.close()
+
 
 
 def get_finding_purchases(attribute) -> list:
@@ -77,5 +75,5 @@ def get_finding_purchases(attribute) -> list:
         selection_query = """SELECT * FROM Purchases 
         WHERE PurchaseDate LIKE %s OR LandingBillNumber LIKE %s;"""
         cursor.execute(selection_query,(liked_attribute, liked_attribute))
-    connector.close()
+
     return cursor.fetchall()

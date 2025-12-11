@@ -8,8 +8,6 @@ def get_clients_data() -> list:
 
     selection_query = "SELECT * FROM Clients;"
     cursor.execute(selection_query)
-    connector.close()
-
     return cursor.fetchall()
 
 
@@ -40,7 +38,6 @@ def add_client(card, fam, name, telephone, discount):
     add_clients_query = "INSERT INTO Clients VALUES(%s, %s, %s, %s, %s);"
     cursor.execute(add_clients_query, (card, fam, name, telephone, discount))
     connector.commit()
-    connector.close()
 
 
 def update_client(old_card, card, fam, name, telephone, discount):
@@ -72,7 +69,6 @@ def update_client(old_card, card, fam, name, telephone, discount):
     WHERE DiscountCardNumber = %s;"""
     cursor.execute(update_client_query, (card, fam, name, telephone, discount, old_card))
     connector.commit()
-    connector.close()
 
 
 def del_client(card):
@@ -100,5 +96,4 @@ def get_finding_clients(attribute) -> list:
         WHERE FirstName LIKE %s OR LastName LIKE %s OR TelephoneNumber LIKE %s;"""
         cursor.execute(selection_query,(liked_attribute, liked_attribute, liked_attribute))
 
-    connector.close()
     return cursor.fetchall()

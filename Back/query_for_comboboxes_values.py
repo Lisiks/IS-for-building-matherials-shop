@@ -9,7 +9,6 @@ def get_product_types() -> list:
     cursor.execute(selection_query)
 
     record_list = cursor.fetchall()
-    connector.close()
 
     return list(map(lambda record: record[0], record_list))
 
@@ -22,7 +21,6 @@ def get_product_units() -> list:
     cursor.execute(selection_query)
 
     record_list = cursor.fetchall()
-    connector.close()
 
     return list(map(lambda record: record[0], record_list))
 
@@ -35,7 +33,6 @@ def get_products_articles() -> list:
     cursor.execute(selection_query)
 
     record_list = cursor.fetchall()
-    connector.close()
 
     return list(map(lambda record: f"{record[0]} | {record[1]}", record_list))
 
@@ -48,7 +45,6 @@ def get_suppliers_inn() -> list:
     cursor.execute(selection_query)
 
     record_list = cursor.fetchall()
-    connector.close()
 
     return list(map(lambda record: f"{record[0]} | {record[1]}", record_list))
 
@@ -61,6 +57,5 @@ def get_client_cards() -> list:
     cursor.execute(selection_query)
 
     record_list = cursor.fetchall()
-    connector.close()
 
     return list(map(lambda record: f"{record[0]} | {record[1]} {record[2]}", record_list))

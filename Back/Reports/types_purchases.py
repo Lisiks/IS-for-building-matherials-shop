@@ -29,8 +29,6 @@ def make_type_purchases_reposts(period) -> list:
     cursor.execute(types_query)
     types_records = cursor.fetchall()
 
-    connector.close()
-
     product_hash = dict()
     types_hash = dict()
     for product_record in product_data:

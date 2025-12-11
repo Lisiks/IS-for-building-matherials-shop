@@ -38,7 +38,7 @@ def make_client_sales_reposts(period) -> list:
     client_query = """SELECT DiscountCardNumber, FirstName, LastName FROM Clients;"""
     cursor.execute(client_query)
     clients_data = cursor.fetchall()
-    connector.close()
+
 
     product_hash = dict()
     client_hash = dict()

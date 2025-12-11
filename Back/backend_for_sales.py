@@ -10,7 +10,6 @@ def get_sales() -> list:
     FROM Sales LEFT JOIN ClientSales ON Sales.ID = ClientSales.Sales_ID;"""
     cursor.execute(selection_query)
 
-    connector.close()
     return cursor.fetchall()
 
 
@@ -56,7 +55,6 @@ def add_sale(date, client_card, product_article, product_count) -> int:
     cursor.execute(update_product_count_query, (product_count, product_article))
     connector.commit()
 
-    connector.close()
     return new_record_id
 
 
@@ -67,7 +65,7 @@ def del_sale(sale_id):
     delete_sale_query = """DELETE FROM Sales WHERE ID = %s"""
     cursor.execute(delete_sale_query, (sale_id,))
     connector.commit()
-    connector.close()
+
 
 
 def get_finding_sales(attribute) -> list:
@@ -86,5 +84,4 @@ def get_finding_sales(attribute) -> list:
         WHERE Sales.SaleDate LIKE %s OR Sales.Products_ProductArticle LIKE %s OR ClientSales.Clients_DiscountCardNumber LIKE %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute))
 
-    connector.close()
     return cursor.fetchall()

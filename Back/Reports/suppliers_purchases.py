@@ -29,8 +29,6 @@ def make_suppliers_purchases_reposts(period) -> list:
     cursor.execute(supplier_query)
     suppliers_records = cursor.fetchall()
 
-    connector.close()
-
     product_hash = dict()
     suppliers_hash = dict()
     for product_record in product_data:

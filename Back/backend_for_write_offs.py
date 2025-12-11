@@ -9,7 +9,6 @@ def get_write_offs() -> list:
     selection_query = "SELECT * FROM WriteOffs;"
     cursor.execute(selection_query)
 
-    connector.close()
     return cursor.fetchall()
 
 
@@ -45,7 +44,6 @@ def add_write_off(date, product_article, product_count, reason) -> int:
     cursor.execute(update_product_count_query, (product_count, product_article))
     connector.commit()
 
-    connector.close()
     return new_record_id
 
 
@@ -56,7 +54,7 @@ def del_write_off(write_off_id):
     delete_write_off_query = """DELETE FROM WriteOffs WHERE ID = %s"""
     cursor.execute(delete_write_off_query, (write_off_id,))
     connector.commit()
-    connector.close()
+
 
 
 def get_finding_write_off(attribute) -> list:
@@ -73,5 +71,5 @@ def get_finding_write_off(attribute) -> list:
         selection_query = """SELECT * FROM WriteOffs 
         WHERE WriteOffDate LIKE %s OR OperationReason LIKE %s;"""
         cursor.execute(selection_query,(liked_attribute, liked_attribute))
-    connector.close()
+
     return cursor.fetchall()

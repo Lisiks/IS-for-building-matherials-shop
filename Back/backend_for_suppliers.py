@@ -8,7 +8,6 @@ def get_suppliers_data() -> list:
 
     selection_query = "SELECT * FROM Suppliers;"
     cursor.execute(selection_query)
-    connector.close()
 
     return cursor.fetchall()
 
@@ -40,7 +39,6 @@ def add_supplier(inn, name, address, telephone, email):
     add_supplier_query = "INSERT INTO Suppliers VALUES(%s, %s, %s, %s, %s);"
     cursor.execute(add_supplier_query, (inn, name, address, telephone, email))
     connector.commit()
-    connector.close()
 
 
 def update_supplier(old_inn, inn, name, address, telephone, email):
@@ -72,7 +70,6 @@ def update_supplier(old_inn, inn, name, address, telephone, email):
     WHERE INN = %s;"""
     cursor.execute(update_supplier_query, (inn, name, address, telephone, email, old_inn))
     connector.commit()
-    connector.close()
 
 
 def del_supplier(inn):
@@ -83,7 +80,6 @@ def del_supplier(inn):
     cursor.execute(del_supplier_query, (inn,))
 
     connector.commit()
-    connector.close()
 
 
 def get_finding_suppliers(attribute) -> list:
@@ -102,7 +98,6 @@ def get_finding_suppliers(attribute) -> list:
         WHERE SupplierCompany LIKE %s OR Address LIKE %s OR TelephoneNumber LIKE %s OR Email LIKE %s;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute, liked_attribute))
 
-    connector.close()
     return cursor.fetchall()
 
 

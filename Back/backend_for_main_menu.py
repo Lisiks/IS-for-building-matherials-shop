@@ -42,7 +42,6 @@ def get_month_purchases_sales_count():
 
     sales_count = cursor.fetchall()[0][0]
 
-    connector.close()
     return purchases_count, sales_count
 
 

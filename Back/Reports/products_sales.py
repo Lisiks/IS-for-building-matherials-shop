@@ -33,7 +33,6 @@ def make_product_sales_reposts(period) -> list:
     ORDER BY ProductsSellingPriceChanges.DateOfChange ASC;"""
     cursor.execute(product_selling_price_query, (start_date, end_date))
     product_selling_price_data = cursor.fetchall()
-    connector.close()
 
     product_hash = dict()
     for product_record in product_data:
