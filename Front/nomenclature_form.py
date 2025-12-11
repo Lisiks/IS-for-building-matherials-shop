@@ -356,7 +356,7 @@ class NomenclatureForm(ctk.CTkFrame):
         prod_unit = self.__unit_combobox.get()
         try:
             back.add_product(article, name, buy_price, sel_price, prod_type, prod_unit)
-            added_record = [article, name, buy_price, sel_price, prod_type, prod_unit, 0]
+            added_record = [article, name, f"{round(float(buy_price), 2):.2f}", f"{round(float(buy_price), 2):.2f}", prod_type, prod_unit, 0]
             self.__nomenclature_table.insert_row(idx=0, row=added_record, redraw=True)
             self.__clearing_entrys()
             self.__nomenclature_table.deselect(row="all")
@@ -447,7 +447,7 @@ class NomenclatureForm(ctk.CTkFrame):
             prod_unit = self.__unit_combobox.get()
             try:
                 back.update_product(old_article, old_buy_price, old_sel_price, article, name, buy_price, sel_price, prod_type, prod_unit)
-                updated_record = [article, name, buy_price, sel_price, prod_type, prod_unit, count]
+                updated_record = [article, name, f"{round(float(buy_price), 2):.2f}", f"{round(float(buy_price), 2):.2f}", prod_type, prod_unit, count]
                 self.__nomenclature_table.delete_row(rows=selected_row)
                 self.__nomenclature_table.insert_row(idx=selected_row, row=updated_record, redraw=True)
                 self.__nomenclature_table.deselect(row="all")

@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tksheet import Sheet
 from Front.global_const import *
+from Front.dialog_window import InformationDialog
 
 
 class RepostResultForm(ctk.CTkFrame):
@@ -29,8 +30,13 @@ class RepostResultForm(ctk.CTkFrame):
         self.__table_frame = ctk.CTkFrame(master=self, fg_color="#313131", corner_radius=10, width=self.__table_width, height=self.__table_height)
         self.__table_frame.grid(row=1, column=0, sticky="w", pady=2, padx=3)
 
+        self.__save_to_excel_button = ctk.CTkButton(master=self, text="Сохранить в Excel", font=("Arial", self.__font_size), width=window_w // 4, height=window_h//20, command=self.__save_report_to_excel)
+        self.__save_to_excel_button.grid(row=2, column=0, sticky="w", pady=2, padx=3)
+
+        self.__result_table = None
+
     def load_report_data(self, data):
-        report_table = Sheet(
+        self.__result_table = Sheet(
             self.__table_frame,
             show_x_scrollbar=False,
             show_y_scrollbar=False,
@@ -69,5 +75,10 @@ class RepostResultForm(ctk.CTkFrame):
             empty_vertical=False,
             empty_horizontal=False
         )
-        report_table.set_all_column_widths(self.__table_column_width)
-        report_table.grid(row=0, column=0, sticky="w", pady=7)
+        self.__result_table.set_all_column_widths(self.__table_column_width)
+        self.__result_table.grid(row=0, column=0, sticky="w", pady=7)
+
+    def __save_report_to_excel(self):
+        if self.__result_table is None:
+            InformationDialog(self, "Внимание", "Перед сохранением в Excel дождитесь\nокончания формирования отчета!")
+            return 0

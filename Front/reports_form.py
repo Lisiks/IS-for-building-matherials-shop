@@ -7,6 +7,7 @@ from Front.dialog_window import InformationDialog
 from Back.Reports import (products_sales, products_purchases, types_sales, product_buying_price_graphics,
                           types_purchases, clients_sales, suppliers_purchases, product_selling_price_graphics)
 from matplotlib import pyplot
+from matplotlib.widgets import Button as PlotButton
 import threading
 
 
@@ -372,7 +373,7 @@ class ReportsForm(ctk.CTkFrame):
                 master=self.master,
                 window_w=self.master.winfo_screenwidth(),
                 window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по закупкам (по типу) за {period.lower()}",
+                report_header=f"Отчет по продажам (по типу) за {period.lower()}",
                 table_headers=["Тип", "Объем продажи", "Выручка", "Прибыль"])
             report_thread = threading.Thread(name="report_thread", target=self.__make_type_sales_report, args=(period,), daemon=True)
 
@@ -381,7 +382,7 @@ class ReportsForm(ctk.CTkFrame):
                 master=self.master,
                 window_w=self.master.winfo_screenwidth(),
                 window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по закупкам (по поставщикам) за {period.lower()}",
+                report_header=f"Отчет по продажам (по клиентам) за {period.lower()}",
                 table_headers=["№ дисконтной карты", "Клиент", "Объем продажи", "Выручка", "Прибыль"])
             report_thread = threading.Thread(name="report_thread", target=self.__make_client_sales_report,args=(period,), daemon=True)
 
@@ -433,21 +434,24 @@ class ReportsForm(ctk.CTkFrame):
                 "За указанный период не было совершено\nни одного изменения цены данного товара.")
             return 0
 
-        pyplot.style.use("dark_background")
-        pyplot.figure(
+        current_figure = pyplot.figure(
             num=f"Динамика цены закупки товара '{article}' за {period.lower()}",
-            figsize=(self.master.winfo_screenwidth() // 100, self.master.winfo_screenheight() // 100)
         )
 
         pyplot.title(f"Динамика цены закупки товара '{article}' за {period.lower()}")
         pyplot.xlabel("Дата изменения")
         pyplot.ylabel("Цена товара")
 
-        pyplot.plot(date_list, price_list, "w-o")
+        pyplot.plot(date_list, price_list, "--o")
 
         if len(date_list) > 15:
             pyplot.tick_params(axis='x', labelbottom=False)
 
+        button_place = pyplot.axes([0.01, 0.01, 0.2, 0.05])
+        pyplot_button = PlotButton(button_place, 'Выход', color='#0D95E8', hovercolor='#00B2FF')
+        pyplot_button.on_clicked(lambda event: pyplot.close(pyplot.close(current_figure)))
+
+        pyplot.get_current_fig_manager().full_screen_toggle()
         pyplot.show()
 
     def __make_product_selling_price_report(self):
@@ -489,21 +493,24 @@ class ReportsForm(ctk.CTkFrame):
                 "За указанный период не было совершено\nни одного изменения цены данного товара.")
             return 0
 
-        pyplot.style.use("dark_background")
-        pyplot.figure(
+        current_figure = pyplot.figure(
             num=f"Динамика цены продажи товара '{article}' за {period.lower()}",
-            figsize=(self.master.winfo_screenwidth() // 100, self.master.winfo_screenheight() // 100)
         )
 
         pyplot.title(f"Динамика цены продажи товара '{article}' за {period.lower()}")
         pyplot.xlabel("Дата изменения")
         pyplot.ylabel("Цена товара")
 
-        pyplot.plot(date_list, price_list, "w-o")
+        pyplot.plot(date_list, price_list, "--o")
 
         if len(date_list) > 15:
             pyplot.tick_params(axis='x', labelbottom=False)
 
+        button_place = pyplot.axes([0.01, 0.01, 0.2, 0.05])
+        pyplot_button = PlotButton(button_place, 'Выход', color='#0D95E8', hovercolor='#00B2FF')
+        pyplot_button.on_clicked(lambda event: pyplot.close(pyplot.close(current_figure)))
+
+        pyplot.get_current_fig_manager().full_screen_toggle()
         pyplot.show()
 
 
