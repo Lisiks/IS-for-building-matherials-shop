@@ -489,7 +489,7 @@ class AddingSalesWindow(ctk.CTkToplevel):
             elif e.args[0] == "Article doesnt exist":
                 InformationDialog(self, "Ошибка ввода!", f"Товар с артикулом {e.args[1]} отсутствует\nв базе данных.")
             elif e.args[0] == "Big product count":
-                InformationDialog(self, "Ошибка ввода!", f"Текущее кол-во товара {e.args[1]}({e.args[2]}) меньше чем указано в продаже({e.args[3]}).")
+                InformationDialog(self, "Ошибка ввода!", f"Текущее кол-во товара {e.args[1]}({e.args[3]}) меньше чем указано в продаже({e.args[2]}).")
             else:
                 InformationDialog(self, "Непридвиденная ошибка!", e.args[0])
 

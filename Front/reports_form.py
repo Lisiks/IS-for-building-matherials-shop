@@ -82,7 +82,7 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
-            command=self.__make_sale_report
+            command=lambda: self.__make_report(report_kind="sales")
         )
 
         self._sellers_report_create_button.grid(row=6, column=0, padx=x_padding, pady=y_padding)
@@ -104,7 +104,7 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
-            command=self.__make_purchase_report
+            command=lambda: self.__make_report(report_kind="purchases")
         )
 
         self._purchasing_report_create_button.grid(row=6, column=1, padx=x_padding, pady=y_padding)
@@ -141,7 +141,7 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
-            command=self.__make_product_buying_price_report
+            command=lambda: self.__make_product_price_report("buy_price_type")
         )
 
         self.__purchasing_price_report_create_button.grid(row=10, column=0, padx=x_padding, pady=y_padding)
@@ -168,12 +168,10 @@ class ReportsForm(ctk.CTkFrame):
             font=("Arial", font_size),
             width=window_w // 3,
             height=window_h // 20,
-            command=self.__make_product_selling_price_report
+            command=lambda: self.__make_product_price_report("sel_price_type")
         )
 
         self.__selling_price_report_create_button.grid(row=10, column=1, padx=x_padding, pady=y_padding)
-
-
 
         self.bind("<Map>", self.__on_form_show_actions)
 
@@ -213,9 +211,9 @@ class ReportsForm(ctk.CTkFrame):
         else:
             self.__application_window.change_form(self.__report_result_form)
 
-    def __make_product_purchase_report(self, period):
+    def __thread_report_function(self, report_function, period):
         try:
-            report_data = products_purchases.make_product_purchases_reposts(period)
+            report_data = report_function(period)
             self.__report_result_form.load_report_data(report_data)
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
@@ -223,27 +221,7 @@ class ReportsForm(ctk.CTkFrame):
                 "Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
 
-    def __make_type_purchase_report(self, period):
-        try:
-            report_data = types_purchases.make_type_purchases_reposts(period)
-            self.__report_result_form.load_report_data(report_data)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-
-    def __make_supplier_purchase_report(self, period):
-        try:
-            report_data = suppliers_purchases.make_suppliers_purchases_reposts(period)
-            self.__report_result_form.load_report_data(report_data)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-
-    def __make_purchase_report(self):
+    def __make_report(self, report_kind):
         thread_names = [thr.name for thr in threading.enumerate()]
         if "report_thread" in thread_names:
             InformationDialog(
@@ -254,49 +232,54 @@ class ReportsForm(ctk.CTkFrame):
 
         period = self.__period_entry.get()
         if period == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать период!")
+            InformationDialog(self,"Ошибка ввода","Для формирования отчета необходимо указать период!")
             return 0
 
-        report_type = self.__purchasing_type_entry.get()
+        report_type = self.__purchasing_type_entry.get() if report_kind == "purchases" else self.__seller_type_entry.get()
         if report_type == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать его тип!")
+            InformationDialog(self,"Ошибка ввода","Для формирования отчета необходимо указать его тип!")
             return 0
 
-        if report_type == "По товарам":
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по закупкам (по товарам) за {period.lower()}",
-                table_headers=["Артикул", "Наименование", "Объем закупки", "Стоимость закупки"])
 
-            report_thread = threading.Thread(name="report_thread",target=self.__make_product_purchase_report, args=(period,), daemon=True)
-        elif report_type == "По типу товаров":
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по закупкам (по типу) за {period.lower()}",
-                table_headers=["Тип", "Объем закупки", "Стоимость закупки"])
-            report_thread = threading.Thread(name="report_thread", target=self.__make_type_purchase_report,args=(period,), daemon=True)
-
+        if report_type == "По товарам" and report_kind == "purchases":
+            report_headers = f"Отчет по закупкам (по товарам) за {period.lower()}"
+            report_table_headers = ["Артикул", "Наименование", "Объем закупки", "Стоимость закупки"]
+            report_function = products_purchases.make_product_purchases_reposts
+        elif report_type == "По типу товаров" and report_kind == "purchases":
+            report_headers = f"Отчет по закупкам (по типу) за {period.lower()}"
+            report_table_headers = ["Тип", "Объем закупки", "Стоимость закупки"]
+            report_function = types_purchases.make_type_purchases_reposts
+        elif report_type == "По поставщикам" and report_kind == "purchases":
+            report_headers = f"Отчет по закупкам (по поставщикам) за {period.lower()}"
+            report_table_headers = ["ИНН", "Наименование", "Объем закупки", "Стоимость закупки"]
+            report_function = suppliers_purchases.make_suppliers_purchases_reposts
+        elif report_type == "По товарам" and report_kind == "sales":
+            report_headers = f"Отчет по продажам (по товарам) за {period.lower()}"
+            report_table_headers = ["Артикул", "Наименование", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
+            report_function = products_sales.make_product_sales_reposts
+        elif report_type == "По типу товаров" and report_kind == "sales":
+            report_headers = f"Отчет по продажам (по типу) за {period.lower()}"
+            report_table_headers = ["Тип", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
+            report_function = types_sales.make_type_sales_reposts
         else:
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по закупкам (по поставщикам) за {period.lower()}",
-                table_headers=["ИНН", "Наименование", "Объем закупки", "Стоимость закупки"])
-            report_thread = threading.Thread(name="report_thread", target=self.__make_supplier_purchase_report,args=(period,), daemon=True)
+            report_headers = f"Отчет по продажам (по клиентам) за {period.lower()}"
+            report_table_headers = ["№ дисконтной карты", "Клиент", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
+            report_function = clients_sales.make_client_sales_reposts
 
+        self.__report_result_form = RepostResultForm(
+            master=self.master,
+            window_w=self.master.winfo_screenwidth(),
+            window_h=self.master.winfo_screenheight(),
+            report_header=report_headers,
+            table_headers=report_table_headers
+        )
+        report_thread = threading.Thread(
+            name="report_thread",
+            target=self.__thread_report_function,
+            args=(report_function, period),
+            daemon=True
+        )
         self.__application_window.change_form(self.__report_result_form)
-
         InformationDialog(
             self.master,
             "Создание отчета",
@@ -304,127 +287,30 @@ class ReportsForm(ctk.CTkFrame):
 
         report_thread.start()
 
-    def __make_product_sales_report(self, period):
-        try:
-            report_data = products_sales.make_product_sales_reposts(period)
-            self.__report_result_form.load_report_data(report_data)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-
-    def __make_type_sales_report(self, period):
-        try:
-            report_data = types_sales.make_type_sales_reposts(period)
-            self.__report_result_form.load_report_data(report_data)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-
-    def __make_client_sales_report(self, period):
-        try:
-            report_data = clients_sales.make_client_sales_reposts(period)
-            self.__report_result_form.load_report_data(report_data)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-
-    def __make_sale_report(self):
-        thread_names = [thr.name for thr in threading.enumerate()]
-        if "report_thread" in thread_names:
-            InformationDialog(
-                self,
-                "Внимание",
-                "Формирование данного отчета невозможно,\nт.к в данный момент идет формирование другого отчета!")
-            return 0
-
+    def __make_product_price_report(self, report_type):
         period = self.__period_entry.get()
         if period == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать период!")
+            InformationDialog(self, "Ошибка ввода", "Для формирования отчета необходимо указать период!")
             return 0
 
-        report_type = self.__seller_type_entry.get()
-        if report_type == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать его тип!")
-            return 0
-
-        if report_type == "По товарам":
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по продажам (по товарам) за {period.lower()}",
-                table_headers=["Артикул", "Наименование", "Объем продажи", "Выручка", "Прибыль"])
-            report_thread = threading.Thread(name="report_thread",target=self.__make_product_sales_report, args=(period,), daemon=True)
-
-        elif report_type == "По типу товаров":
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по продажам (по типу) за {period.lower()}",
-                table_headers=["Тип", "Объем продажи", "Выручка", "Прибыль"])
-            report_thread = threading.Thread(name="report_thread", target=self.__make_type_sales_report, args=(period,), daemon=True)
-
-        else:
-            self.__report_result_form = RepostResultForm(
-                master=self.master,
-                window_w=self.master.winfo_screenwidth(),
-                window_h=self.master.winfo_screenheight(),
-                report_header=f"Отчет по продажам (по клиентам) за {period.lower()}",
-                table_headers=["№ дисконтной карты", "Клиент", "Объем продажи", "Выручка", "Прибыль"])
-            report_thread = threading.Thread(name="report_thread", target=self.__make_client_sales_report,args=(period,), daemon=True)
-
-        self.__application_window.change_form(self.__report_result_form)
-
-        InformationDialog(
-            self.master,
-            "Создание отчета",
-            "Процесс создания запущен, дождитесь его окончания,\nлибо перейдите в 'Последний сформированный отчет'\nраздела 'Отчеты' позже.")
-
-        report_thread.start()
-
-    def __make_product_buying_price_report(self):
-        period = self.__period_entry.get()
-        if period == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать период!")
-            return 0
-
-        article = self.__article_for_purchasing_price_report.get()
+        article = self.__article_for_selling_price_report.get() if report_type == "sel_price_type" else self.__article_for_purchasing_price_report.get()
         if article == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать артикул товара!")
+            InformationDialog(self, "Ошибка ввода", "Для формирования отчета необходимо указать артикул товара!")
             return 0
 
         try:
-            date_list, price_list = product_buying_price_graphics.make_product_buying_price_report(period, article)
+            if report_type == "sel_price_type":
+                date_list, price_list = product_selling_price_graphics.make_product_selling_price_report(period, article)
+            else:
+                date_list, price_list = product_buying_price_graphics.make_product_buying_price_report(period, article)
+
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
+                self.master,"Ошибка подключения к БД!",
                 "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
             return 0
         except TypeError:
-            InformationDialog(
-                self.master,
-                "Ошибка ввода!",
-                "Товар с данным артикулом отсутствует в БД!")
+            InformationDialog(self.master,"Ошибка ввода!","Товар с данным артикулом отсутствует в БД!")
             return 0
 
         if len(date_list) == 0:
@@ -434,11 +320,12 @@ class ReportsForm(ctk.CTkFrame):
                 "За указанный период не было совершено\nни одного изменения цены данного товара.")
             return 0
 
+        graph_header = "Динамика цены продажи товара" if report_type == "sel_price_type" else "Динамика цены закупки товара"
         current_figure = pyplot.figure(
-            num=f"Динамика цены закупки товара '{article}' за {period.lower()}",
+            num=f"{graph_header} '{article}' за {period.lower()}",
         )
 
-        pyplot.title(f"Динамика цены закупки товара '{article}' за {period.lower()}")
+        pyplot.title(f"{graph_header} '{article}' за {period.lower()}")
         pyplot.xlabel("Дата изменения")
         pyplot.ylabel("Цена товара")
 
@@ -453,77 +340,5 @@ class ReportsForm(ctk.CTkFrame):
 
         pyplot.get_current_fig_manager().full_screen_toggle()
         pyplot.show()
-
-    def __make_product_selling_price_report(self):
-        period = self.__period_entry.get()
-        if period == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать период!")
-            return 0
-
-        article = self.__article_for_selling_price_report.get()
-        if article == "":
-            InformationDialog(
-                self,
-                "Ошибка ввода",
-                "Для формирования отчета необходимо указать артикул товара!")
-            return 0
-
-        try:
-            date_list, price_list = product_selling_price_graphics.make_product_selling_price_report(period, article)
-        except mysql.connector.errors.InterfaceError:
-            InformationDialog(
-                self.master,
-                "Ошибка подключения к БД!",
-                "Проверьте подключение к сети интернет\nлибо обратитесь к техническому специалисту!")
-            return 0
-        except TypeError:
-            InformationDialog(
-                self.master,
-                "Ошибка ввода!",
-                "Товар с данным артикулом отсутствует в БД!")
-            return 0
-
-        if len(date_list) == 0:
-            InformationDialog(
-                self.master,
-                "Результат отчета!",
-                "За указанный период не было совершено\nни одного изменения цены данного товара.")
-            return 0
-
-        current_figure = pyplot.figure(
-            num=f"Динамика цены продажи товара '{article}' за {period.lower()}",
-        )
-
-        pyplot.title(f"Динамика цены продажи товара '{article}' за {period.lower()}")
-        pyplot.xlabel("Дата изменения")
-        pyplot.ylabel("Цена товара")
-
-        pyplot.plot(date_list, price_list, "--o")
-
-        if len(date_list) > 15:
-            pyplot.tick_params(axis='x', labelbottom=False)
-
-        button_place = pyplot.axes([0.01, 0.01, 0.2, 0.05])
-        pyplot_button = PlotButton(button_place, 'Выход', color='#0D95E8', hovercolor='#00B2FF')
-        pyplot_button.on_clicked(lambda event: pyplot.close(pyplot.close(current_figure)))
-
-        pyplot.get_current_fig_manager().full_screen_toggle()
-        pyplot.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
