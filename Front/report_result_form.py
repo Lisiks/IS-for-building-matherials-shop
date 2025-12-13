@@ -1,7 +1,9 @@
 import customtkinter as ctk
 from tksheet import Sheet
+from tkinter.filedialog import asksaveasfilename
 from Front.global_const import *
 from Front.dialog_window import InformationDialog
+from pandas import DataFrame
 
 
 class RepostResultForm(ctk.CTkFrame):
@@ -9,6 +11,7 @@ class RepostResultForm(ctk.CTkFrame):
         super().__init__(master)
         self.configure(fg_color=master.cget("fg_color"))
 
+        self.__report_header = report_header
         self.__table_headers = table_headers
 
         self.__table_width = window_w - (window_w // 4) - 60
@@ -80,5 +83,24 @@ class RepostResultForm(ctk.CTkFrame):
 
     def __save_report_to_excel(self):
         if self.__result_table is None:
-            InformationDialog(self, "Внимание", "Перед сохранением в Excel дождитесь\nокончания формирования отчета!")
+            InformationDialog(self, "Внимание!", "Перед сохранением в Excel дождитесь\nокончания формирования отчета!")
             return 0
+
+        report_data = self.__result_table.get_data()
+        if not report_data:
+            InformationDialog(self, "Внимание!", "Результат отчета пуст.")
+            return 0
+
+        file_name = asksaveasfilename(defaultextension="xlsx", initialfile=self.__report_header)
+        if file_name == "":
+            InformationDialog(self, "Ошибка сохранения!", "Файл не выбран.")
+            return 0
+
+        dict_for_excel_import = dict()
+        report_data = [report_data] if type(report_data[0]) != list else report_data
+        for idx, header in enumerate(self.__table_headers):
+            dict_for_excel_import[header] = [report_record[idx] for report_record in report_data]
+
+        data_frame = DataFrame(dict_for_excel_import)
+        data_frame.to_excel(file_name, sheet_name="Отчет", index=False)
+        InformationDialog(self, "Успешно!", f"Отчет сохранен по адресу:\n{file_name}.")
