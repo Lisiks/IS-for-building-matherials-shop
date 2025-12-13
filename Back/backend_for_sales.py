@@ -6,8 +6,8 @@ def get_sales() -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
-    selection_query = """SELECT Sales.ID, Sales.SaleDate, ClientSales.Clients_DiscountCardNumber, Sales.Products_ProductArticle, Sales.ProductCount 
-    FROM Sales LEFT JOIN ClientSales ON Sales.ID = ClientSales.Sales_ID;"""
+    selection_query = """SELECT Sales.Id, Sales.SaleDate, ClientSales.fk_client_card_number
+    FROM Sales LEFT JOIN ClientSales ON Sales.Id = ClientSales.fk_sale_id ORDER BY Sales.SaleDate DESC;"""
     cursor.execute(selection_query)
 
     return cursor.fetchall()

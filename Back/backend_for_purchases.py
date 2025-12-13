@@ -17,7 +17,7 @@ def get_purchases() -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
-    selection_query = "SELECT * FROM Purchases;"
+    selection_query = "SELECT * FROM Purchases ORDER BY PurchaseDate DESC;"
     cursor.execute(selection_query)
 
     return cursor.fetchall()

@@ -6,7 +6,7 @@ def get_write_offs() -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
-    selection_query = "SELECT * FROM WriteOffs;"
+    selection_query = "SELECT * FROM WriteOffs ORDER BY WriteOffDate DESC;"
     cursor.execute(selection_query)
 
     return cursor.fetchall()
