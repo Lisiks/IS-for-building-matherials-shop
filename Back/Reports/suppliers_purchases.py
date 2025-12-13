@@ -10,8 +10,9 @@ def make_suppliers_purchases_reposts(period) -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
-    purchases_query = """SELECT ALL Products_ProductArticle, Suppliers_INN, PurchaseDate, ProductCount FROM Purchases 
-    WHERE PurchaseDate >= %s AND PurchaseDate < %s;"""
+    purchases_query = """SELECT PurchaseProducts.fk_product_article, Purchases.fk_supplier_inn, Purchases.PurchaseDate, PurchaseProducts.ProductCount
+    FROM PurchaseProducts JOIN Purchases ON PurchaseProducts.fk_purchase_id = Purchases.Id 
+    WHERE Purchases.PurchaseDate >= %s AND Purchases.PurchaseDate < %s;"""
     cursor.execute(purchases_query, (start_date, end_date))
     purchases_records = cursor.fetchall()
 

@@ -10,11 +10,12 @@ def make_type_sales_reposts(period) -> list:
     connector = get_connector()
     cursor = connector.cursor()
 
-    sales_query = """SELECT Sales.SaleDate, Sales.Products_ProductArticle, Sales.ProductCount, Clients.DiscountPercentage 
-    FROM Sales 
-    LEFT JOIN ClientSales ON Sales.ID = ClientSales.Sales_ID 
-    LEFT JOIN Clients ON ClientSales.Clients_DiscountCardNumber = Clients.DiscountCardNumber
-    WHERE SaleDate >= %s AND SaleDate < %s;"""
+    sales_query = """SELECT ALL SaleProducts.fk_product_article, Sales.SaleDate, SaleProducts.ProductCount, Clients.DiscountPercentage
+    FROM SaleProducts 
+    JOIN Sales ON SaleProducts.fk_sale_id = Sales.Id 
+    LEFT JOIN ClientSales ON Sales.Id = ClientSales.fk_sale_id 
+    LEFT JOIN Clients ON ClientSales.fk_client_card_number = Clients.DiscountCardNumber
+    WHERE Sales.SaleDate >= %s AND Sales.SaleDate < %s;"""
     cursor.execute(sales_query, (start_date, end_date))
     sales_records = cursor.fetchall()
 
@@ -60,7 +61,7 @@ def make_type_sales_reposts(period) -> list:
         product_hash[article].selling_cost_list.append([date_of_change, sel_price])
 
     for sal_record in sales_records:
-        date, article, count, discount = sal_record
+        article, date, count, discount = sal_record
 
         buying_cost = data_binary_search(date, product_hash[article].buying_cost_list)
         selling_cost = data_binary_search(date, product_hash[article].selling_cost_list)
