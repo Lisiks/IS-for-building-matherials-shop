@@ -1,14 +1,14 @@
 import customtkinter as ctk
+import threading
 import mysql.connector.errors
 from Front.report_result_form import RepostResultForm
 from Front.global_const import *
 from Back.query_for_comboboxes_values import get_products_articles
 from Front.dialog_window import InformationDialog
-from Back.Reports import (products_sales, products_purchases, types_sales, product_buying_price_graphics,
-                          types_purchases, clients_sales, suppliers_purchases, product_selling_price_graphics)
+from Back.Reports import purchases_reports, sales_reports, product_price_reports
+
 from matplotlib import pyplot
 from matplotlib.widgets import Button as PlotButton
-import threading
 
 
 class ReportsForm(ctk.CTkFrame):
@@ -244,27 +244,27 @@ class ReportsForm(ctk.CTkFrame):
         if report_type == "По товарам" and report_kind == "purchases":
             report_headers = f"Отчет по закупкам (по товарам) за {period.lower()}"
             report_table_headers = ["Артикул", "Наименование", "Объем закупки", "Стоимость закупки"]
-            report_function = products_purchases.make_product_purchases_reposts
+            report_function = purchases_reports.make_product_purchases_report
         elif report_type == "По типу товаров" and report_kind == "purchases":
             report_headers = f"Отчет по закупкам (по типу) за {period.lower()}"
             report_table_headers = ["Тип", "Объем закупки", "Стоимость закупки"]
-            report_function = types_purchases.make_type_purchases_reposts
+            report_function = purchases_reports.make_type_purchases_report
         elif report_type == "По поставщикам" and report_kind == "purchases":
             report_headers = f"Отчет по закупкам (по поставщикам) за {period.lower()}"
             report_table_headers = ["ИНН", "Наименование", "Объем закупки", "Стоимость закупки"]
-            report_function = suppliers_purchases.make_suppliers_purchases_reposts
+            report_function = purchases_reports.make_suppliers_purchases_report
         elif report_type == "По товарам" and report_kind == "sales":
             report_headers = f"Отчет по продажам (по товарам) за {period.lower()}"
             report_table_headers = ["Артикул", "Наименование", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
-            report_function = products_sales.make_product_sales_reposts
+            report_function = sales_reports.make_product_sales_report
         elif report_type == "По типу товаров" and report_kind == "sales":
             report_headers = f"Отчет по продажам (по типу) за {period.lower()}"
             report_table_headers = ["Тип", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
-            report_function = types_sales.make_type_sales_reposts
+            report_function = sales_reports.make_type_sales_report
         else:
             report_headers = f"Отчет по продажам (по клиентам) за {period.lower()}"
             report_table_headers = ["№ дисконтной карты", "Клиент", "Объем продаж", "Выручка c учетом\ncкидок", "Прибыль с продажи"]
-            report_function = clients_sales.make_client_sales_reposts
+            report_function = sales_reports.make_client_sales_report
 
         self.__report_result_form = RepostResultForm(
             master=self.master,
@@ -300,9 +300,9 @@ class ReportsForm(ctk.CTkFrame):
 
         try:
             if report_type == "sel_price_type":
-                date_list, price_list = product_selling_price_graphics.make_product_selling_price_report(period, article)
+                date_list, price_list = product_price_reports.make_product_selling_price_report(period, article)
             else:
-                date_list, price_list = product_buying_price_graphics.make_product_buying_price_report(period, article)
+                date_list, price_list = product_price_reports.make_product_buying_price_report(period, article)
 
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
