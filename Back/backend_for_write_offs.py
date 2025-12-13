@@ -65,11 +65,13 @@ def get_finding_write_off(attribute) -> list:
 
     if attribute.isdigit():
         selection_query = """SELECT * FROM WriteOffs 
-        WHERE WriteOffDate LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount = %s OR OperationReason LIKE %s;"""
+        WHERE WriteOffDate LIKE %s OR Products_ProductArticle LIKE %s OR ProductCount = %s OR OperationReason LIKE %s
+        ORDER BY WriteOffDate DESC;"""
         cursor.execute(selection_query, (liked_attribute, liked_attribute, int(attribute), liked_attribute))
     else:
         selection_query = """SELECT * FROM WriteOffs 
-        WHERE WriteOffDate LIKE %s OR OperationReason LIKE %s;"""
+        WHERE WriteOffDate LIKE %s OR OperationReason LIKE %s
+        ORDER BY WriteOffDate DESC;"""
         cursor.execute(selection_query,(liked_attribute, liked_attribute))
 
     return cursor.fetchall()

@@ -42,21 +42,21 @@ def add_purchase(suppliers_inn, document, product_list) -> int:
         check_article_query = "SELECT * FROM Products WHERE ProductArticle = %s;"
         cursor.execute(check_article_query, (article,))
         if len(cursor.fetchall()) == 0:
-            raise TypeError("Article doesnt exist")
+            raise TypeError("Article doesnt exist", article)
 
     add_purchase_query = "INSERT INTO Purchases(LandingBillNumber, fk_supplier_inn) VALUES (%s, %s);"
     cursor.execute(add_purchase_query, (document, suppliers_inn))
 
     current_record_query = "SELECT * FROM Purchases WHERE Id = LAST_INSERT_ID();"
     cursor.execute(current_record_query)
-
     current_record = cursor.fetchall()[0]
+
     for product_line in product_list:
         article, count = product_line
         adding_product_query = "INSERT INTO PurchaseProducts VALUES(%s, %s, %s);"
         cursor.execute(adding_product_query, (current_record[0], article, int(count)))
         changing_product_count_query = "UPDATE Products SET Count = Count + %s WHERE ProductArticle = %s;"
-        cursor.execute(changing_product_count_query, (count, article))
+        cursor.execute(changing_product_count_query, (int(count), article))
 
     connector.commit()
     return current_record
@@ -78,7 +78,8 @@ def get_finding_purchases(attribute) -> list:
     liked_attribute = f"%{attribute}%"
 
     selection_query = """SELECT * FROM Purchases 
-    WHERE PurchaseDate LIKE %s OR fk_supplier_inn LIKE %s OR LandingBillNumber LIKE %s;"""
+    WHERE PurchaseDate LIKE %s OR fk_supplier_inn LIKE %s OR LandingBillNumber LIKE %s
+    ORDER BY PurchaseDate DESC;"""
     cursor.execute(selection_query, (liked_attribute, liked_attribute, liked_attribute))
 
     return cursor.fetchall()
@@ -114,7 +115,7 @@ def get_purchase_information(purchase_id) -> PurchaseInfo:
 
         product_list[idx] = [article, product_name, count, count*price]
 
-    return PurchaseInfo(purchase_id, str(purchase_date), supplier_inn, supplier_company, landing_bill_number, product_list)
+    return PurchaseInfo(purchase_id, purchase_date, supplier_inn, supplier_company, landing_bill_number, product_list)
 
 
 
