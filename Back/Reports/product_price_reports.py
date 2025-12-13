@@ -8,12 +8,14 @@ def make_product_buying_price_report(period, article):
     connector = get_connector()
     cursor = connector.cursor()
 
-    check_article_query = """SELECT * FROM Products WHERE ProductArticle = %s;"""
+    check_article_query = """SELECT ProductName FROM Products WHERE ProductArticle = %s;"""
     cursor.execute(check_article_query, (article,))
     product_query_result = cursor.fetchall()
 
     if len(product_query_result) == 0:
         raise TypeError("Article doesnt exist")
+
+    product_name = product_query_result[0][0]
 
     buying_price_query = """SELECT DateOfChange, NewPrice FROM ProductsBuyingPriceChanges
     WHERE Products_ProductArticle = %s AND DateOfChange >= %s AND DateOfChange < %s
@@ -24,7 +26,7 @@ def make_product_buying_price_report(period, article):
     date_list = [str(change_data[0]).replace(" ", "\n") for change_data in buying_price_data]
     price_list = [float(change_data[1]) for change_data in buying_price_data]
 
-    return date_list, price_list
+    return product_name, date_list, price_list
 
 
 def make_product_selling_price_report(period, article):
@@ -33,12 +35,14 @@ def make_product_selling_price_report(period, article):
     connector = get_connector()
     cursor = connector.cursor()
 
-    check_article_query = """SELECT * FROM Products WHERE ProductArticle = %s;"""
+    check_article_query = """SELECT ProductName FROM Products WHERE ProductArticle = %s;"""
     cursor.execute(check_article_query, (article,))
     product_query_result = cursor.fetchall()
 
     if len(product_query_result) == 0:
         raise TypeError("Article doesnt exist")
+
+    product_name = product_query_result[0][0]
 
     selling_price_query = """SELECT DateOfChange, NewPrice FROM ProductsSellingPriceChanges
     WHERE Products_ProductArticle = %s AND DateOfChange >= %s AND DateOfChange < %s
@@ -49,4 +53,4 @@ def make_product_selling_price_report(period, article):
     date_list = [str(change_data[0]).replace(" ", "\n") for change_data in selling_price_data]
     price_list = [float(change_data[1]) for change_data in selling_price_data]
 
-    return date_list, price_list
+    return product_name, date_list, price_list

@@ -9,6 +9,7 @@ from Back.Reports import purchases_reports, sales_reports, product_price_reports
 
 from matplotlib import pyplot
 from matplotlib.widgets import Button as PlotButton
+import mplcursors
 
 
 class ReportsForm(ctk.CTkFrame):
@@ -288,6 +289,17 @@ class ReportsForm(ctk.CTkFrame):
         report_thread.start()
 
     def __make_product_price_report(self, report_type):
+        def cursor_event(sel):
+            nonlocal date_list, price_list
+            x, y = sel.target
+
+            current_date = date_list[int(x)].replace("\n", " ")
+            current_price = price_list[int(x)]
+
+            annotation_price = "-" if y != current_price else str(current_price)
+            sel.annotation.set_text(f"Дата изменения: {current_date}\nНовая цена: {annotation_price}")
+
+
         period = self.__period_entry.get()
         if period == "":
             InformationDialog(self, "Ошибка ввода", "Для формирования отчета необходимо указать период!")
@@ -300,9 +312,9 @@ class ReportsForm(ctk.CTkFrame):
 
         try:
             if report_type == "sel_price_type":
-                date_list, price_list = product_price_reports.make_product_selling_price_report(period, article)
+                product_name, date_list, price_list = product_price_reports.make_product_selling_price_report(period, article)
             else:
-                date_list, price_list = product_price_reports.make_product_buying_price_report(period, article)
+                product_name, date_list, price_list = product_price_reports.make_product_buying_price_report(period, article)
 
         except mysql.connector.errors.InterfaceError:
             InformationDialog(
@@ -325,7 +337,8 @@ class ReportsForm(ctk.CTkFrame):
             num=f"{graph_header} '{article}' за {period.lower()}",
         )
 
-        pyplot.title(f"{graph_header} '{article}' за {period.lower()}")
+
+        pyplot.title(f"{graph_header}: {product_name} (артикул:{article}) - за {period.lower()}")
         pyplot.xlabel("Дата изменения")
         pyplot.ylabel("Цена товара")
 
@@ -335,10 +348,14 @@ class ReportsForm(ctk.CTkFrame):
             pyplot.tick_params(axis='x', labelbottom=False)
 
         button_place = pyplot.axes([0.01, 0.01, 0.2, 0.05])
-        pyplot_button = PlotButton(button_place, 'Выход', color='#0D95E8', hovercolor='#00B2FF')
-        pyplot_button.on_clicked(lambda event: pyplot.close(pyplot.close(current_figure)))
-
+        pyplot_button = PlotButton(button_place, 'Закрыть отчет', color='#E3E3E3', hovercolor='#F0F0F0')
+        pyplot_button.on_clicked(lambda event: pyplot.close(current_figure))
         pyplot.get_current_fig_manager().full_screen_toggle()
+
+        cursor = mplcursors.cursor(hover=True)
+        cursor.connect("add", cursor_event)
+
+
         pyplot.show()
 
 
