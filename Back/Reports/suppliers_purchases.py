@@ -21,9 +21,8 @@ def make_suppliers_purchases_reposts(period) -> list:
     product_data = cursor.fetchall()
 
     product_buying_price_story_query = """SELECT * FROM ProductsBuyingPriceChanges 
-    WHERE DateOfChange >= %s AND DateOfChange < %s
     ORDER BY ProductsBuyingPriceChanges.DateOfChange ASC;"""
-    cursor.execute(product_buying_price_story_query, (start_date, end_date))
+    cursor.execute(product_buying_price_story_query)
     product_buying_price_data = cursor.fetchall()
 
     supplier_query = """SELECT INN, SupplierCompany FROM Suppliers;"""

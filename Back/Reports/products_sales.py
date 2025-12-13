@@ -24,15 +24,13 @@ def make_product_sales_reposts(period) -> list:
     product_data = cursor.fetchall()
 
     product_buying_price_story_query = """SELECT * FROM ProductsBuyingPriceChanges 
-    WHERE DateOfChange >= %s AND DateOfChange < %s
     ORDER BY ProductsBuyingPriceChanges.DateOfChange ASC;"""
-    cursor.execute(product_buying_price_story_query, (start_date, end_date))
+    cursor.execute(product_buying_price_story_query)
     product_buying_price_data = cursor.fetchall()
 
     product_selling_price_query = """SELECT * FROM ProductsSellingPriceChanges 
-    WHERE DateOfChange >= %s AND DateOfChange < %s
     ORDER BY ProductsSellingPriceChanges.DateOfChange ASC;"""
-    cursor.execute(product_selling_price_query, (start_date, end_date))
+    cursor.execute(product_selling_price_query)
     product_selling_price_data = cursor.fetchall()
 
     product_hash = dict()
