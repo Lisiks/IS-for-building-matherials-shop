@@ -9,7 +9,6 @@ def get_connector() -> mysql.connector.connect:
     global database_connector
     if database_connector is None or not database_connector.is_connected():
         config_file_path = abspath("JSON/database_connect_config.json")
-        print(1)
 
         with open(config_file_path, "r", encoding="utf-8") as config_file:
             config_data = json.load(config_file)
