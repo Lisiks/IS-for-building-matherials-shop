@@ -394,7 +394,7 @@ class AddingPurchasesWindow(ctk.CTkToplevel):
         self.__product_table.headers(["Артикул товара", "Кол-во"])
         self.__product_table.extra_bindings("cell_select", lambda event: self.__product_table.select_row(event["selected"].row))
         self.__product_table.enable_bindings("single_select")
-        self.__product_table.set_all_column_widths(self.__W // 2 - 20)
+        self.__product_table.set_all_column_widths((self.__W - 20) // 2)
 
         self.__add_button = ctk.CTkButton(
             master=self,
@@ -513,7 +513,7 @@ class AddingPurchasesWindow(ctk.CTkToplevel):
             elif e.args[0] == "Incorrect document":
                 InformationDialog(self, "Ошибка ввода!", "Некорректный формат номера транспортной накладной.\nОн должен быть не менее 1 и не более 30 символов.")
             elif e.args[0] == "Article doesnt exist":
-                InformationDialog(self, "Ошибка ввода!", "Указан товар, артикул которого отсутствует\nв базе данных.")
+                InformationDialog(self, "Ошибка ввода!", f"Товар с артикулом {e.args[1]} отсутствует\nв базе данных.")
             else:
                 InformationDialog(self, "Непридвиденная ошибка!", e.args[0])
 
@@ -523,6 +523,7 @@ class ViewPurchasingWindow(ctk.CTkToplevel):
         super().__init__(master)
         self.__W = window_w // 4 * 3
         self.__H = window_h // 4 * 3
+        self.title(f"Поставка №{purchase_info.purchase_id}")
 
         self.minsize(self.__W, self.__H)
         self.maxsize(self.__W, self.__H)
@@ -584,7 +585,7 @@ class ViewPurchasingWindow(ctk.CTkToplevel):
             empty_horizontal=False
         )
 
-        self.__product_table.headers(["Артикул товара", "Наименование", "Кол-во", "Общая цена"])
+        self.__product_table.headers(["Артикул товара", "Наименование", "Кол-во", "Общая стоимость"])
         self.__product_table.set_sheet_data(purchase_info.product_list)
         self.__product_table.set_all_column_widths((self.__W - 20)//4)
 
