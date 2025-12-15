@@ -274,6 +274,7 @@ class AddingSalesWindow(ctk.CTkToplevel):
         super().__init__(master=master)
         self.__W = window_w // 4 * 3
         self.__H = window_h // 4 * 3
+        self.title("Добавить продажу")
         self.geometry(f"{self.__W}x{self.__H}")
         self.minsize(self.__W, self.__H)
         self.maxsize(self.__W, self.__H)

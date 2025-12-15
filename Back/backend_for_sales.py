@@ -33,7 +33,7 @@ def add_sale(client_card_number, product_list) -> int:
     if client_card_number != "":
         checking_client = "SELECT count(*) FROM Clients WHERE DiscountCardNumber = %s;"
         cursor.execute(checking_client, (client_card_number,))
-        if cursor.fetchall()[0][0] != 1:
+        if cursor.fetchall()[0][0] == 0:
             raise TypeError("Client doesnt exist")
 
     for product_line in product_list:
@@ -98,7 +98,6 @@ def get_finding_sales(attribute) -> list:
     cursor.execute(selection_query, (liked_attribute, liked_attribute))
 
     return cursor.fetchall()
-
 
 def get_sale_information(sale_id) -> SaleInfo:
     connector = get_connector()
