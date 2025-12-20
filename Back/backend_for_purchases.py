@@ -1,5 +1,5 @@
 from Back.database_connector import get_connector
-from Back.validators import inn_validation
+from Back.validators import inn_validation, landing_bill_number_validation
 from dataclasses import dataclass
 
 
@@ -26,7 +26,7 @@ def get_purchases() -> list:
 def add_purchase(suppliers_inn, document, product_list) -> int:
     if not inn_validation(suppliers_inn):
         raise TypeError("Incorrect inn")
-    if not 1 <= len(document) <= 30:
+    if not landing_bill_number_validation(document):
         raise TypeError("Incorrect document")
 
     connector = get_connector()

@@ -28,6 +28,16 @@ def article_validation(article) -> bool:
 def client_card_validation(card) -> bool:
     return len(card) == 10 and card.isdigit()
 
+def landing_bill_number_validation(landing_bill_number) -> bool:
+    if not (1 <= len(landing_bill_number) <= 30):
+        return False
+
+    for char in landing_bill_number:
+        if not (97 <= ord(char.lower()) <= 122 or char.isdigit()):
+            return False
+    else:
+        return True
+
 
 def float_validation(attribute) -> bool:
     try:

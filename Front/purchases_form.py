@@ -512,7 +512,7 @@ class AddingPurchasesWindow(ctk.CTkToplevel):
             if e.args[0] == "Incorrect inn":
                 InformationDialog(self, "Ошибка ввода!","Некорректный формат ИНН.")
             elif e.args[0] == "Incorrect document":
-                InformationDialog(self, "Ошибка ввода!", "Некорректный формат номера транспортной накладной.\nОн должен быть не менее 1 и не более 30 символов.")
+                InformationDialog(self, "Ошибка ввода!", "Некорректный формат номера транспортной накладной.\nОн должен быть не менее 1 и не более 30 символов\n и состоять только из латинских букв и цифр.")
             elif e.args[0] == "Article doesnt exist":
                 InformationDialog(self, "Ошибка ввода!", f"Товар с артикулом {e.args[1]} отсутствует\nв базе данных.")
             else:
