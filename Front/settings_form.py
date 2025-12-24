@@ -371,7 +371,9 @@ class SettingsForm(ctk.CTkFrame):
                 "Файл 'organization_data.json' был поврежден\n перемещен или утерян!"
             )
         except TypeError as current_error:
-            if current_error.args[0] == "Incorrect inn":
+            if current_error.args[0] == "Incorrect name":
+                info = "Некорректная длинна названия организации! Она должна быть\nне менее 3 и не более 30 символов."
+            elif current_error.args[0] == "Incorrect inn":
                 info = "Некорректный формат ИНН!"
             elif current_error.args[0] == "Incorrect ogrn":
                 info = "Некорректный формат ОГРН!"

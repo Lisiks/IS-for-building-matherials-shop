@@ -8,8 +8,6 @@ from os import listdir
 from PIL import Image
 
 
-
-
 class MainMenuForm(ctk.CTkFrame):
     def __init__(self, master, window_w, window_h):
         super().__init__(master)
@@ -34,7 +32,8 @@ class MainMenuForm(ctk.CTkFrame):
         self.__company_name_label = ctk.CTkLabel(
             master=self.__info_label_frame,
             text="Наименование компании:",
-            font=("Arial", font_size)
+            font=("Arial", font_size),
+            justify="left"
         )
         self.__company_name_label.grid(row=1, column=0, sticky="w", padx=x_padding, pady=y_padding)
 
@@ -93,7 +92,8 @@ class MainMenuForm(ctk.CTkFrame):
         month_sales_count = "Продаж в текущем месяце: "
         month_purchases_count = "Закупок в текущем месяце: "
         try:
-            organization_name_label_text += str(back.get_organization_name())
+            org_name = back.get_organization_name()
+            organization_name_label_text += org_name if len(org_name) <= 15 else f"\n{org_name}"
         except FileNotFoundError:
             InformationDialog(
                 self.master,

@@ -511,6 +511,8 @@ class AddingPurchasesWindow(ctk.CTkToplevel):
         except TypeError as e:
             if e.args[0] == "Incorrect inn":
                 InformationDialog(self, "Ошибка ввода!","Некорректный формат ИНН.")
+            elif e.args[0] == "Suppliers doesnt exist":
+                InformationDialog(self, "Ошибка ввода!", "Поставщик с указанным ИНН отсутствует в базе данных!.")
             elif e.args[0] == "Incorrect document":
                 InformationDialog(self, "Ошибка ввода!", "Некорректный формат номера транспортной накладной.\nОн должен быть не менее 1 и не более 30 символов\n и состоять только из латинских букв и цифр.")
             elif e.args[0] == "Article doesnt exist":

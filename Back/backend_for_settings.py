@@ -16,6 +16,9 @@ def get_organization_data() -> dict:
 def set_organization_data(org_name, org_inn, org_ogrn, org_telephone, org_address):
     org_data = dict()
 
+    if not 3 <= len(org_name) <= 30:
+        raise TypeError("Incorrect name")
+
     if not inn_validation(org_inn):
         raise TypeError("Incorrect inn")
 

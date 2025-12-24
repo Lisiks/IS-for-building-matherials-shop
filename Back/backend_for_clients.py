@@ -24,7 +24,7 @@ def add_client(card, fam, name, telephone, discount):
     if not telephone_validation(telephone):
         raise TypeError("Incorrect telephone")
 
-    if not (discount.isdigit and 1 <= int(discount) <= 100):
+    if not discount.isdigit() or not 1 <= int(discount) <= 100:
         raise TypeError("Incorrect discount")
 
     connector = get_connector()
@@ -53,7 +53,7 @@ def update_client(old_card, card, fam, name, telephone, discount):
     if not telephone_validation(telephone):
         raise TypeError("Incorrect telephone")
 
-    if not (discount.isdigit and 1 <= int(discount) <= 100):
+    if not discount.isdigit() or not 1 <= int(discount) <= 100:
         raise TypeError("Incorrect discount")
 
     connector = get_connector()

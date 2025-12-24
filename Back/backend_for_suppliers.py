@@ -91,7 +91,7 @@ def get_finding_suppliers(attribute) -> list:
     if attribute.isdigit():
         selection_query = """SELECT * FROM Suppliers 
         WHERE INN LIKE %s OR SupplierCompany LIKE %s OR Address LIKE %s OR TelephoneNumber LIKE %s OR Email LIKE %s;"""
-        cursor.execute(liked_attribute, (attribute, liked_attribute, liked_attribute, liked_attribute, liked_attribute))
+        cursor.execute(selection_query, (attribute, liked_attribute, liked_attribute, liked_attribute, liked_attribute))
 
     else:
         selection_query = """SELECT * FROM Suppliers 

@@ -487,6 +487,8 @@ class AddingSalesWindow(ctk.CTkToplevel):
         except TypeError as e:
             if e.args[0] == "Incorrect card":
                 InformationDialog(self, "Ошибка ввода!","Некорректный формат номера карты клиента.")
+            elif e.args[0] == "Client doesnt exist":
+                InformationDialog(self, "Ошибка ввода!", f"Клиент с указанным номером карты отсутствует в\nбазе данных.")
             elif e.args[0] == "Article doesnt exist":
                 InformationDialog(self, "Ошибка ввода!", f"Товар с артикулом {e.args[1]} отсутствует\nв базе данных.")
             elif e.args[0] == "Big product count":
